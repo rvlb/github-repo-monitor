@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 
-import Commit from '../components/Commit';
+import Form from '../components/RepositoryFetchForm';
 
 const Home = () => {
+  const onFormSubmit = (values) => {
+    console.log(values);
+  };
+
   return (
-    <>
-      <div>
-        <Commit
-          id="19acbf97c6388ab8ff0630c31d80cee244adaf37"
-          repository="rvlb-19/fai-pagseguro"
-          title="Add integration"
-        />
-      </div>
-    </>
+    <div>
+      <Form onSubmit={onFormSubmit} />
+    </div>
   );
 };
 

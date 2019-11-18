@@ -5,11 +5,11 @@ import django_js_reverse.views
 from rest_framework.routers import DefaultRouter
 
 from common.views import home, login
-from users.routes import routes as users_routes
+from commits.routes import routes as commits_routes
 
 router = DefaultRouter()
 
-routes = users_routes
+routes = commits_routes
 for route in routes:
     router.register(route[0], route[1])
 
