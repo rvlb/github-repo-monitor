@@ -16,7 +16,7 @@ const validate = ({ repositoryName }) => {
   return errors;
 };
 
-const RepositoryFetchForm = ({ handleSubmit }) => {
+const RepositoryAddForm = ({ handleSubmit }) => {
   return (
     <form onSubmit={handleSubmit}>
       <Field
@@ -33,4 +33,4 @@ const RepositoryFetchForm = ({ handleSubmit }) => {
   );
 };
 
-export default reduxForm({ form: 'repository-fetch', validate })(RepositoryFetchForm);
+export default reduxForm({ form: 'repository-add', validate })(RepositoryAddForm);

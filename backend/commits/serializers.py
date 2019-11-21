@@ -11,3 +11,10 @@ class RepositorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Repository
         fields = ['name', 'owner']
+    
+    def validate_name(self, value):
+        # Checks if the repository name is well-formed
+        repository_data = list(filter(None, value.split('/')))
+        if len(repository_data) != 2:
+            raise serializers.ValidationError('O nome do repositório informado é inválido.')
+        return value

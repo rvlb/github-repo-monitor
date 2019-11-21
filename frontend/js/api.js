@@ -6,4 +6,4 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
 const ROOT_URL = 'http://localhost:8000/api';
 
-export const repositoryFetch = (data) => axios.post(`${ROOT_URL}/repositories/`, data);
+export const repositoryAdd = (data) => axios.post(`${ROOT_URL}/repositories/`, data);
