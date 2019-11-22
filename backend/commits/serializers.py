@@ -10,7 +10,7 @@ class CommitSerializer(serializers.ModelSerializer):
 class RepositorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Repository
-        fields = ['name', 'owner']
+        fields = ['name', 'owner', 'id']
     
     def validate_name(self, value):
         # Checks if the repository name is well-formed

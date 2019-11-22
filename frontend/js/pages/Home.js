@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Form from '../components/forms/RepositoryAddForm';
-import { repositoryAdd } from '../actions';
+import { creators } from '../store/ducks/repositories';
 
-const Home = ({ repositoryAdd }) => {
+const Home = ({ addRepository }) => {
   const onSubmit = ({ repositoryName }) => {
     const name = repositoryName;
     // Cria a action para fazer a requisição ao backend
-    repositoryAdd({ name });
+    addRepository({ name });
   };
   return (
     <div>
@@ -18,9 +18,7 @@ const Home = ({ repositoryAdd }) => {
   );
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ repositoryAdd }, dispatch);
-};
+const mapDispatchToProps = (dispatch) => bindActionCreators(creators, dispatch);
 
 export default connect(
   null,
