@@ -112,6 +112,10 @@ REST_FRAMEWORK = {
 GITHUB_API_ROOT = 'https://api.github.com'
 SOCIAL_AUTH_GITHUB_KEY = config('SOCIAL_AUTH_GITHUB_KEY')
 SOCIAL_AUTH_GITHUB_SECRET = config('SOCIAL_AUTH_GITHUB_SECRET')
+SOCIAL_AUTH_GITHUB_SCOPE = [
+    'repo', # Allows access to public and private repositories
+    'write:repo_hook', # Allows the creation o webhooks
+]
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'

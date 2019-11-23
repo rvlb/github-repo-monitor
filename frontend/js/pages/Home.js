@@ -1,26 +1,23 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 
-import Form from '../components/forms/RepositoryAddForm';
+import RepositoryAddForm from '../components/forms/RepositoryAddForm';
 import { creators } from '../store/ducks/repositories';
 
-const Home = ({ addRepository }) => {
+const Home = () => {
+  const dispatch = useDispatch();
+  // Method that will handle the form submission after the validations are done
   const onSubmit = ({ repositoryName }) => {
     const name = repositoryName;
-    // Cria a action para fazer a requisição ao backend
-    addRepository({ name });
+    // Create the action object and then dispatch it
+    const action = creators.addRepository({ name });
+    dispatch(action);
   };
   return (
     <div>
-      <Form onSubmit={onSubmit} />
+      <RepositoryAddForm onSubmit={onSubmit} />
     </div>
   );
 };
 
-const mapDispatchToProps = (dispatch) => bindActionCreators(creators, dispatch);
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(Home);
+export default Home;

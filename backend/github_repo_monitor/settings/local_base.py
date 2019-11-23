@@ -1,9 +1,9 @@
 from .base import *  # noqa
 
-
 DEBUG = True
 
 HOST = 'http://localhost:8000'
+ALLOWED_HOSTS = ['*'] # allows testing the repositories webhook with ngrok
 
 SECRET_KEY = 'secret'
 
