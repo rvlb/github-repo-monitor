@@ -1,12 +1,15 @@
 import axios from 'axios';
 
-axios.defaults.baseURL = 'http://localhost:8000/api';
+axios.defaults.baseURL = '/api';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
 const api = {
-  addRepository: (data) => axios.post(`/repositories/`, data),
+  addRepository: (data) => axios.post('/repositories/', data),
+  addRepositoryPastMonthCommits: ({ repositoryId }) => {
+    return axios.post(`/repositories/${repositoryId}/repository-commits/`, { days: 30 });
+  },
 };
 
 export default api;

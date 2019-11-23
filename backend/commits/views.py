@@ -69,28 +69,31 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         # TODO: implement
         return Response()
     
-    @action(detail=True, methods=['post'], url_path='past-month-commits')
-    def bulk_insert_past_month_commits(self, request, pk=None):
+    @action(detail=True, methods=['post'], url_path='repository-commits')
+    def bulk_insert_commits(self, request, pk=None):
         repo = self.get_object()
+
+        params = {}
+        # TODO: move to serializer
+        if 'days' in request.data:
+            days = request.data['days']
+            since = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+            params['since'] = since.isoformat()
+
+        new_commits = [] # List of commits that were inserted in this request
 
         credentials = get_user_credentials(request.user)
         token = credentials.extra_data['access_token']
-
-        # repo.name already contains {user_name}/{repo_name}
-        endpoint = f'repos/{repo.name}/commits'
-
-        one_month_ago = datetime.datetime.utcnow() - datetime.timedelta(days=30)
-        params = {'since': one_month_ago.isoformat()}
-
-        new_commits = [] # List of commits that were inserted in this request
+        endpoint = f'repos/{repo.name}/commits' # repo.name already contains {user_name}/{repo_name}
         past_month_commits = self._github_request(endpoint, 'get', token, params).json()
+
         for raw_commit in past_month_commits:
             # Python 3.7 can't parse UTC's offset Z at the end of the string,
             # so we manually replace it with the numerical offset +00:00
             created_at = raw_commit['commit']['author']['date'].replace('Z', '+00:00')
             commit = {
                 'code': raw_commit['sha'],
-                'url': raw_commit['url'], # The API endpoint that returns this commit
+                'url': raw_commit['html_url'],
                 'repository': repo.pk,
                 'message': raw_commit['commit']['message'],
                 'created_at': datetime.datetime.fromisoformat(created_at),
@@ -101,7 +104,11 @@ class RepositoryViewSet(viewsets.ModelViewSet):
                 new_commits.append(instance)
         
         serializer = CommitSerializer(new_commits, many=True)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        status_code = status.HTTP_201_CREATED
+        # If no commits were added in this request, we return a more proper status code instead of 201
+        if len(new_commits) == 0:
+            status_code = status.HTTP_200_OK
+        return Response(serializer.data, status=status_code)
     
     def create(self, request, *args, **kwargs):
         try:

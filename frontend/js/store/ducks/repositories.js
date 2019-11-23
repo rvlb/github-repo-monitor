@@ -2,7 +2,7 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 
 import api from '../api';
 
-import { types as commitTypes } from './commits';
+import { creators as commitActions } from './commits';
 
 // Action types
 export const types = {
@@ -14,6 +14,8 @@ export const types = {
 // Action creators
 export const creators = {
   addRepository: (payload) => ({ type: types.ADD_REQUESTED, payload }),
+  addRepositorySuccess: (payload) => ({ type: types.ADD_SUCCESS, payload }),
+  addRepositoryError: (error) => ({ type: types.ADD_ERROR, error }),
 };
 
 // Reducer
@@ -31,12 +33,12 @@ function* addRepositorySaga(action) {
     // It only makes sense to dispatch the action if the repository was created in this request
     const repository = response.data;
     if (response.status === 201) {
-      yield put({ type: types.ADD_SUCCESS, payload: response.data });
+      yield put(creators.addRepositorySuccess(response.data));
     }
-    // After retrieving the data of the repository, dispatch the event to get the commits from that repository
-    yield put({ type: commitTypes.ADD_REQUESTED, payload: repository });
+    // After retrieving the data of the repository, dispatch the action to get the commits from that repository
+    yield put(commitActions.addPastMonthCommits(repository));
   } catch (error) {
-    yield put({ type: types.ADD_ERROR, error });
+    yield put(creators.addRepositoryError(error));
   }
 }
 
