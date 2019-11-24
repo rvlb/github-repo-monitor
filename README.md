@@ -1,4 +1,5 @@
 [![License: MIT](https://img.shields.io/github/license/vintasoftware/django-react-boilerplate.svg)](LICENSE.txt)
+[![CircleCI](https://circleci.com/gh/rvlb-19/github-repo-monitor.svg?style=svg)](https://circleci.com/gh/rvlb-19/github-repo-monitor)
 
 # Github Repositories Monitor
 

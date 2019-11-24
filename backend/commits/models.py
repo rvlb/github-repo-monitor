@@ -17,7 +17,7 @@ class Commit(models.Model):
     code = models.CharField(max_length=255, unique=True)
     url = models.URLField(max_length=255, default='')
     message = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
 
     def __str__(self):

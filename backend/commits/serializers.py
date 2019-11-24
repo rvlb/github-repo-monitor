@@ -5,7 +5,10 @@ from .models import Commit, Repository
 class CommitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Commit
-        fields = ['code', 'message', 'repository', 'url', 'id', 'created_at']
+        fields = ['code', 'message', 'repository', 'url', 'id', 'date']
+
+class RepositoryCommitsBulkInsertSerializer(serializers.Serializer):
+    days = serializers.IntegerField(min_value=0, default=0)
 
 class RepositorySerializer(serializers.ModelSerializer):
     class Meta:

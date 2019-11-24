@@ -11,10 +11,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import Commit, Repository
-from .serializers import CommitSerializer, RepositorySerializer
+from .serializers import CommitSerializer, RepositorySerializer, RepositoryCommitsBulkInsertSerializer
 from .utils import get_user_credentials
-
-GITHUB_API_ROOT = settings.GITHUB_API_ROOT
 
 class CommitViewSet(viewsets.ModelViewSet):
     queryset = Commit.objects.all()
@@ -22,11 +20,15 @@ class CommitViewSet(viewsets.ModelViewSet):
 
 class RepositoryViewSet(viewsets.ModelViewSet):
     queryset = Repository.objects.all()
-    serializer_class = RepositorySerializer
+
+    def get_serializer_class(self):
+        if self.action == 'bulk_insert_commits':
+            return RepositoryCommitsBulkInsertSerializer
+        return RepositorySerializer
 
     def _github_request(self, endpoint, method, token, data={}):
         http_method = method.lower()
-        url = f'{GITHUB_API_ROOT}/{endpoint}'
+        url = f'{settings.GITHUB_API_ROOT}/{endpoint}'
         headers = {'authorization': f'token {token}'}
         if http_method == 'get':
             return requests.get(url, params=data, headers=headers)
@@ -73,12 +75,15 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     def bulk_insert_commits(self, request, pk=None):
         repo = self.get_object()
 
+        # Validates the POST data (basically only the number of
+        # days we are going backwards to get commits from)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         params = {}
-        # TODO: move to serializer
-        if 'days' in request.data:
-            days = request.data['days']
-            since = datetime.datetime.utcnow() - datetime.timedelta(days=days)
-            params['since'] = since.isoformat()
+        days = serializer.data['days']
+        since = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+        params['since'] = since.isoformat()
 
         new_commits = [] # List of commits that were inserted in this request
 
@@ -96,7 +101,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
                 'url': raw_commit['html_url'],
                 'repository': repo.pk,
                 'message': raw_commit['commit']['message'],
-                'created_at': datetime.datetime.fromisoformat(created_at),
+                'date': datetime.datetime.fromisoformat(created_at),
             }
             serializer = CommitSerializer(data=commit)
             if serializer.is_valid():
