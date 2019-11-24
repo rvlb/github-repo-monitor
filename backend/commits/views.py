@@ -1,9 +1,7 @@
-import requests
 import datetime
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.http.response import HttpResponseNotFound, HttpResponseForbidden
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -12,7 +10,7 @@ from rest_framework.response import Response
 
 from .models import Commit, Repository
 from .serializers import CommitSerializer, RepositorySerializer, RepositoryCommitsBulkInsertSerializer
-from .utils import get_user_credentials
+from .utils import get_user_credentials, github_request
 
 class CommitViewSet(viewsets.ModelViewSet):
     queryset = Commit.objects.all()
@@ -26,33 +24,6 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             return RepositoryCommitsBulkInsertSerializer
         return RepositorySerializer
 
-    def _github_request(self, endpoint, method, token, data={}):
-        http_method = method.lower()
-        url = f'{settings.GITHUB_API_ROOT}/{endpoint}'
-        headers = {'authorization': f'token {token}'}
-        if http_method == 'get':
-            return requests.get(url, params=data, headers=headers)
-        elif http_method == 'post':
-            return requests.post(url, json=data, headers=headers)
-        return
-
-    def _is_repository_owner(self, credentials, repository_name):
-        if credentials is None:
-            return False
-        # Validates that the GitHub user owns the repository
-        github_user = credentials.extra_data['login']
-        if f'{github_user}/' not in repository_name:
-            return False
-        return True
-
-    def _validate_repository(self, repo_owner, repo_name, credentials):
-        endpoint = f'repos/{repo_owner}/{repo_name}'
-        token = credentials.extra_data['access_token']
-        req = self._github_request(endpoint, 'get', token)
-        if req.status_code == 200:
-            return True
-        return False
-
     def _setup_webhook(self, repo_owner, repo_name, credentials):
         # TODO: migrate this to use celery
         endpoint = f'repos/{repo_owner}/{repo_name}/hooks'
@@ -64,7 +35,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
                 'content_type': 'json'
             }
         }
-        return self._github_request(endpoint, 'post', token, webhook_data)
+        return github_request(endpoint, 'post', token, webhook_data)
     
     @action(detail=False, methods=['post'], permission_classes=[AllowAny], url_name='github-repo-webhook')
     def webhook(self, request):
@@ -90,7 +61,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         credentials = get_user_credentials(request.user)
         token = credentials.extra_data['access_token']
         endpoint = f'repos/{repo.name}/commits' # repo.name already contains {user_name}/{repo_name}
-        past_month_commits = self._github_request(endpoint, 'get', token, params).json()
+        past_month_commits = github_request(endpoint, 'get', token, params).json()
 
         for raw_commit in past_month_commits:
             # Python 3.7 can't parse UTC's offset Z at the end of the string,
@@ -134,22 +105,10 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
     
     def perform_create(self, serializer):
-        user = self.request.user
-        data = self.request.data
-
-        credentials = get_user_credentials(user)
-        is_owner = self._is_repository_owner(credentials, data['name'])
-        if not is_owner:
-            return HttpResponseForbidden('Você não tem permissão para acessar este repositório.')
-
-        [repo_owner, repo_name] = data['name'].split('/')
-        repository_exists = self._validate_repository(repo_owner, repo_name, credentials)
-        if not repository_exists:
-            return HttpResponseNotFound('O repositório informado não existe.')
-        
-        serializer.save()
-
+        super().perform_create(serializer)
         # GitHub webhook API won't work with localhost, so we don't call it in development mode
         if not settings.DEBUG:
+            credentials = get_user_credentials(self.request.user)
+            [repo_owner, repo_name] = self.request.data['name'].split('/')
             # After creating a repository, we must setup a webhook to "listen to" new data
             self._setup_webhook(repo_owner, repo_name, credentials)

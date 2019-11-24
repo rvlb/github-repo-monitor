@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 
 import renderField from './renderField';
 
-const validate = ({ repositoryName }) => {
+const validate = ({ name }) => {
   const errors = {};
-  if (!repositoryName) {
-    errors.repositoryName = 'Campo obrigatório';
+  if (!name) {
+    errors.name = 'Campo obrigatório';
   } else {
-    const repositoryData = repositoryName.split('/').filter((v) => v.length > 0);
+    const repositoryData = name.split('/').filter((v) => v.length > 0);
     if (repositoryData.length !== 2) {
-      errors.repositoryName = 'Nome de repositório mal formado';
+      errors.name = 'Nome de repositório mal formado';
     }
   }
   return errors;
@@ -22,9 +22,9 @@ const RepositoryAddForm = ({ handleSubmit }) => {
     <form onSubmit={handleSubmit}>
       <Field
         component={renderField}
-        id="repositoryName"
+        id="name"
         label="Nome do repositório"
-        name="repositoryName"
+        name="name"
         placeholder="{usuario}/{repositorio}"
       />
       <div>

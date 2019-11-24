@@ -28,7 +28,7 @@ renderField.propTypes = {
   type: PropTypes.string,
   meta: PropTypes.shape({
     touched: PropTypes.bool,
-    error: PropTypes.string,
+    error: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   }),
 };
 

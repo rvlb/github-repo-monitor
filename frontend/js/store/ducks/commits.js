@@ -45,7 +45,7 @@ export function* fetchCommitsSaga() {
     const response = yield call(api.fetchAll('commits'));
     yield put(creators.fetchCommitsSuccess(response.data));
   } catch (error) {
-    yield put(creators.fetchCommitsError(error));
+    yield put(creators.fetchCommitsError(error.response.data));
   }
 }
 
@@ -59,7 +59,7 @@ export function* addRepositoryCommitsSaga(action) {
     }
     yield put(push('/commits'));
   } catch (error) {
-    yield put(creators.addPastMonthCommitsError(error));
+    yield put(creators.addPastMonthCommitsError(error.response.data));
   }
 }
 

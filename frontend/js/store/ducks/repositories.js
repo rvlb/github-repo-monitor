@@ -1,4 +1,5 @@
-import { call, fork, put, takeLatest } from 'redux-saga/effects';
+import { call, fork, put, takeLatest, takeEvery } from 'redux-saga/effects';
+import { stopSubmit } from 'redux-form';
 
 import api from '../api';
 
@@ -44,7 +45,7 @@ export function* fetchRepositoriesSaga() {
     const response = yield call(api.fetchAll('repositories'));
     yield put(creators.fetchRepositoriesSuccess(response.data));
   } catch (error) {
-    yield put(creators.fetchRepositoriesError(error));
+    yield put(creators.fetchRepositoriesError(error.response.data));
   }
 }
 
@@ -59,13 +60,18 @@ export function* addRepositorySaga(action) {
     // After retrieving the data of the repository, dispatch the action to get the commits from that repository
     yield put(commitActions.addPastMonthCommits(repository));
   } catch (error) {
-    yield put(creators.addRepositoryError(error));
+    yield put(creators.addRepositoryError(error.response.data));
   }
+}
+
+export function* addRepositoryErrorSaga(action) {
+  yield put(stopSubmit('repository-add', action.error));
 }
 
 export function* repositoriesSaga() {
   yield takeLatest(types.FETCH_ALL_REQUESTED, fetchRepositoriesSaga);
   yield takeLatest(types.ADD_REQUESTED, addRepositorySaga);
+  yield takeEvery(types.ADD_ERROR, addRepositoryErrorSaga);
 
   yield fork(fetchRepositoriesSaga);
 }
