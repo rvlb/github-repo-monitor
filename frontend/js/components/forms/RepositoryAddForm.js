@@ -1,5 +1,6 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
+import PropTypes from 'prop-types';
 
 import renderField from './renderField';
 
@@ -31,6 +32,10 @@ const RepositoryAddForm = ({ handleSubmit }) => {
       </div>
     </form>
   );
+};
+
+RepositoryAddForm.propTypes = {
+  handleSubmit: PropTypes.func.isRequired,
 };
 
 export default reduxForm({ form: 'repository-add', validate })(RepositoryAddForm);

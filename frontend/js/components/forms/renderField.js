@@ -1,6 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const renderField = ({ input, id, placeholder, label, type = 'text', meta: { touched, error } }) => {
+const renderField = ({
+  input,
+  id,
+  placeholder,
+  label,
+  type = 'text',
+  meta: { touched, error },
+}) => {
   return (
     <div>
       <label htmlFor={id}>{label}</label>
@@ -10,6 +18,18 @@ const renderField = ({ input, id, placeholder, label, type = 'text', meta: { tou
       </div>
     </div>
   );
+};
+
+renderField.propTypes = {
+  input: PropTypes.object,
+  id: PropTypes.string,
+  placeholder: PropTypes.string,
+  label: PropTypes.string,
+  type: PropTypes.string,
+  meta: PropTypes.shape({
+    touched: PropTypes.bool,
+    error: PropTypes.string,
+  }),
 };
 
 export default renderField;
