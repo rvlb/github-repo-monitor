@@ -33,6 +33,8 @@ pylint:
     - invalid-name
     - no-self-use
     - no-member
+    - too-many-ancestors
+    - abstract-method  # for serializers.Serializer superclasses
   options:
     max-line-length: 100
 

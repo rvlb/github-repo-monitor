@@ -6,8 +6,13 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import Commit, Repository
-from .serializers import CommitSerializer, RepositorySerializer, RepositoryCommitsBulkInsertSerializer
+from .serializers import (
+    CommitSerializer,
+    RepositorySerializer,
+    RepositoryCommitsBulkInsertSerializer,
+)
 from .utils import get_user_credentials, github_request
+
 
 class CommitViewSet(viewsets.ModelViewSet):
     serializer_class = CommitSerializer
@@ -16,6 +21,7 @@ class CommitViewSet(viewsets.ModelViewSet):
         # This view should return only commits from repositories owned by the authenticated user
         user = self.request.user
         return Commit.objects.filter(repository__owner=user)
+
 
 class RepositoryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
@@ -28,7 +34,11 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             return RepositoryCommitsBulkInsertSerializer
         return RepositorySerializer
 
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny], url_name='github-repo-webhook')
+    @action(
+        detail=False, methods=['post'],
+        permission_classes=[AllowAny],
+        url_name='github-repo-webhook'
+    )
     def webhook(self, request):
         # TODO: implement
         return Response()
@@ -43,19 +53,22 @@ class RepositoryViewSet(viewsets.ModelViewSet):
 
         credentials = get_user_credentials(user)
         token = credentials.extra_data['access_token']
-        endpoint = f'repos/{repo.name}/commits' # repo.name already contains {user_name}/{repo_name}
+        # repo.name already contains {user_name}/{repo_name}
+        endpoint = f'repos/{repo.name}/commits'
         return github_request(endpoint, 'get', token, params).json()
 
     @action(detail=True, methods=['post'], url_path='repository-commits')
     def bulk_insert_commits(self, request, pk=None):
         repo = self.get_object()
 
-        # Validates the POST data (basically only the number of days we are going backwards to get commits from)
+        # Validates the POST data (basically only the number of
+        # days we are going backwards to get commits from)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         past_month_commits = self._get_past_month_commits(serializer.data)
-        new_commits = [] # List of commits that were inserted in this request
+        # List of commits that were inserted in this request
+        new_commits = []
 
         for raw_commit in past_month_commits:
             # Python 3.7 can't parse UTC's offset Z at the end of the string,
@@ -76,7 +89,8 @@ class RepositoryViewSet(viewsets.ModelViewSet):
 
         serializer = CommitSerializer(new_commits, many=True)
         status_code = status.HTTP_201_CREATED
-        # If no commits were added in this request, we return a more proper status code instead of 201
+        # If no commits were added in this request, we return a
+        # more proper status code instead of 201
         if not new_commits:
             status_code = status.HTTP_200_OK
         return Response(serializer.data, status=status_code)
