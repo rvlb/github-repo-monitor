@@ -12,35 +12,29 @@ from .serializers import CommitSerializer, RepositorySerializer, RepositoryCommi
 from .utils import get_user_credentials, github_request
 
 class CommitViewSet(viewsets.ModelViewSet):
-    queryset = Commit.objects.all()
     serializer_class = CommitSerializer
 
+    def get_queryset(self):
+        # This view should return only commits from repositories owned by the authenticated user
+        user = self.request.user
+        return Commit.objects.filter(repository__owner=user)
+
 class RepositoryViewSet(viewsets.ModelViewSet):
-    queryset = Repository.objects.all()
+    def get_queryset(self):
+        # This view should return only repositories from the authenticated user
+        user = self.request.user
+        return Repository.objects.filter(owner=user)
 
     def get_serializer_class(self):
         if self.action == 'bulk_insert_commits':
             return RepositoryCommitsBulkInsertSerializer
         return RepositorySerializer
 
-    def _setup_webhook(self, repo_owner, repo_name, credentials):
-        # TODO: migrate this to use celery
-        endpoint = f'repos/{repo_owner}/{repo_name}/hooks'
-        token = credentials.extra_data['access_token']
-        webhook_data = {
-            'config': {
-                # Builds the url of the endpoint responsible for handling the webhook
-                'url': self.reverse_action(self.webhook.url_name),
-                'content_type': 'json'
-            }
-        }
-        return github_request(endpoint, 'post', token, webhook_data)
-    
     @action(detail=False, methods=['post'], permission_classes=[AllowAny], url_name='github-repo-webhook')
     def webhook(self, request):
         # TODO: implement
         return Response()
-    
+
     def _get_past_month_commits(self, data):
         user = self.request.user
         repo = self.get_object()
@@ -72,11 +66,12 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             commit = {
                 'code': raw_commit['sha'],
                 'url': raw_commit['html_url'],
-                'repository': repo.pk,
+                'repository_id': repo.pk,
                 'message': raw_commit['commit']['message'],
                 'date': datetime.datetime.fromisoformat(created_at),
             }
             serializer = CommitSerializer(data=commit)
+            # This won't add the commits that were already present in the database
             if serializer.is_valid():
                 instance = serializer.save()
                 new_commits.append(instance)
@@ -108,9 +103,19 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         super().perform_create(serializer)
-        # GitHub webhook API won't work with localhost, so we don't call it in development mode
-        if not settings.DEBUG:
-            credentials = get_user_credentials(self.request.user)
-            [repo_owner, repo_name] = self.request.data['name'].split('/')
-            # After creating a repository, we must setup a webhook to "listen to" new data
-            self._setup_webhook(repo_owner, repo_name, credentials)
+        # After creating a repository, we must setup a webhook to "listen to" new data
+        self._setup_webhook(serializer.data['name'])
+    
+    def _setup_webhook(self, repo_name):
+        # TODO: migrate this to use celery
+        credentials = get_user_credentials(self.request.user)
+        token = credentials.extra_data['access_token']
+        webhook_data = {
+            'config': {
+                # Builds the url of the endpoint responsible for handling the webhook
+                'url': self.reverse_action(self.webhook.url_name),
+                'content_type': 'json'
+            }
+        }
+        endpoint = f'repos/{repo_name}/hooks'
+        return github_request(endpoint, 'post', token, webhook_data)

@@ -1,6 +1,6 @@
 from .views import CommitViewSet, RepositoryViewSet
 
 routes = [
-    (r'commits', CommitViewSet),
-    (r'repositories', RepositoryViewSet),
+    { 'regex': r'commits', 'viewset': CommitViewSet, 'basename': 'Commit' },
+    { 'regex': r'repositories', 'viewset': RepositoryViewSet, 'basename': 'Repository' },
 ]

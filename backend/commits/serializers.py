@@ -4,9 +4,15 @@ from .models import Commit, Repository
 from .utils import get_user_credentials, is_repository_owner, validate_repository
 
 class CommitSerializer(serializers.ModelSerializer):
+    # Fixes insert bug caused by depth=1
+    repository_id = serializers.PrimaryKeyRelatedField(
+        queryset=Repository.objects.all(),
+        source='repository',
+        write_only=True,
+    )
     class Meta:
         model = Commit
-        fields = ['code', 'message', 'repository', 'url', 'id', 'date']
+        fields = ['code', 'message', 'repository', 'repository_id', 'url', 'id', 'date']
         depth = 1
 
 class RepositoryCommitsBulkInsertSerializer(serializers.Serializer):

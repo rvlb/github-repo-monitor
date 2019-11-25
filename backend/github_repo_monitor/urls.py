@@ -11,7 +11,7 @@ router = DefaultRouter()
 
 routes = commits_routes
 for route in routes:
-    router.register(route[0], route[1])
+    router.register(route['regex'], route['viewset'], basename=route['basename'])
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
