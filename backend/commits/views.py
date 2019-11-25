@@ -1,7 +1,6 @@
 import datetime
 
 from django.conf import settings
-from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -42,26 +41,29 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         # TODO: implement
         return Response()
     
+    def _get_past_month_commits(self, data):
+        user = self.request.user
+        repo = self.get_object()
+
+        params = {}
+        since = datetime.datetime.utcnow() - datetime.timedelta(days=data['days'])
+        params['since'] = since.isoformat()
+
+        credentials = get_user_credentials(user)
+        token = credentials.extra_data['access_token']
+        endpoint = f'repos/{repo.name}/commits' # repo.name already contains {user_name}/{repo_name}
+        return github_request(endpoint, 'get', token, params).json()
+
     @action(detail=True, methods=['post'], url_path='repository-commits')
     def bulk_insert_commits(self, request, pk=None):
         repo = self.get_object()
 
-        # Validates the POST data (basically only the number of
-        # days we are going backwards to get commits from)
+        # Validates the POST data (basically only the number of days we are going backwards to get commits from)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        params = {}
-        days = serializer.data['days']
-        since = datetime.datetime.utcnow() - datetime.timedelta(days=days)
-        params['since'] = since.isoformat()
-
+        past_month_commits = self._get_past_month_commits(serializer.data)
         new_commits = [] # List of commits that were inserted in this request
-
-        credentials = get_user_credentials(request.user)
-        token = credentials.extra_data['access_token']
-        endpoint = f'repos/{repo.name}/commits' # repo.name already contains {user_name}/{repo_name}
-        past_month_commits = github_request(endpoint, 'get', token, params).json()
 
         for raw_commit in past_month_commits:
             # Python 3.7 can't parse UTC's offset Z at the end of the string,
@@ -82,7 +84,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         serializer = CommitSerializer(new_commits, many=True)
         status_code = status.HTTP_201_CREATED
         # If no commits were added in this request, we return a more proper status code instead of 201
-        if len(new_commits) == 0:
+        if not new_commits:
             status_code = status.HTTP_200_OK
         return Response(serializer.data, status=status_code)
     
