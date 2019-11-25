@@ -17,6 +17,8 @@ SECURE_HSTS_PRELOAD = True
 
 DEBUG = True
 
+SECRET_KEY = config('SECRET_KEY')
+
 ADMINS = (
     ('Admin', 'foo@example.com'),
 )
