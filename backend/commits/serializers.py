@@ -22,7 +22,7 @@ class RepositorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Repository
         fields = ['name', 'owner', 'id']
-    
+
     def validate_name(self, value):
         # Checks if the repository name is well-formed
         repository_data = list(filter(None, value.split('/')))

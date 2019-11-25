@@ -1,7 +1,5 @@
 import datetime
 
-from django.conf import settings
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -75,14 +73,14 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 instance = serializer.save()
                 new_commits.append(instance)
-        
+
         serializer = CommitSerializer(new_commits, many=True)
         status_code = status.HTTP_201_CREATED
         # If no commits were added in this request, we return a more proper status code instead of 201
         if not new_commits:
             status_code = status.HTTP_200_OK
         return Response(serializer.data, status=status_code)
-    
+
     def create(self, request, *args, **kwargs):
         try:
             # Checks if the repository already exists in the database,
@@ -100,12 +98,12 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         # Adds the user to the data being saved as the repository owner
         request.data['owner'] = request.user.pk
         return super().create(request, *args, **kwargs)
-    
+
     def perform_create(self, serializer):
         super().perform_create(serializer)
         # After creating a repository, we must setup a webhook to "listen to" new data
         self._setup_webhook(serializer.data['name'])
-    
+
     def _setup_webhook(self, repo_name):
         # TODO: migrate this to use celery
         credentials = get_user_credentials(self.request.user)
