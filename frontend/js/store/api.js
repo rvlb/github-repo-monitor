@@ -10,7 +10,7 @@ const api = {
   addRepositoryPastMonthCommits: ({ repositoryId }) => {
     return axios.post(`/repositories/${repositoryId}/repository-commits/`, { days: 30 });
   },
-  fetchAll: (model) => (params = {}) => axios.get(`/${model}/`, { params }),
+  fetch: (model) => (params = {}) => axios.get(`/${model}/`, { params }),
 };
 
 export default api;

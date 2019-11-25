@@ -1,24 +1,31 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { sortBy } from 'lodash';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-import Commit from '../components/Commit';
+import { creators } from '../store/ducks/commits';
+import CommitsList from '../components/CommitsList';
+import Paginator from '../components/Paginator';
 
-const CommitsList = () => {
+const CommitsListPage = () => {
+  const dispatch = useDispatch();
+  const [paginator, setPaginator] = useState(0);
+  useEffect(() => {
+    // When the component loads (or the paginator changes), dispatch
+    // an action to fetch the next 10 commits to display in the list.
+    const action = creators.fetchCommits({ offset: paginator * 10 });
+    dispatch(action);
+  }, [paginator]);
   const commits = useSelector((state) => state.commits);
-  const repositories = useSelector((state) => state.repositories);
   return (
-    <div className="commits-list">
-      {sortBy(commits, ['date']).map(({ code, message, repository: repositoryId, url, date }) => {
-        const repository = repositories.find((repository) => repository.id === repositoryId);
-        return (
-          <div key={`commit-${code}`}>
-            <Commit date={date} message={message} repository={repository} url={url} />
-          </div>
-        );
-      })}
+    <div>
+      <CommitsList commits={commits.results} />
+      <Paginator
+        currentPage={paginator}
+        renderNext={Boolean(commits.next)}
+        renderPrevious={Boolean(commits.previous)}
+        setPage={setPaginator}
+      />
     </div>
   );
 };
 
-export default CommitsList;
+export default CommitsListPage;

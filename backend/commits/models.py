@@ -20,5 +20,8 @@ class Commit(models.Model):
     date = models.DateTimeField(default=timezone.now)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-date']
+
     def __str__(self):
         return self.code

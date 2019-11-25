@@ -1,4 +1,4 @@
-import { call, fork, put, takeLatest } from 'redux-saga/effects';
+import { call, put, takeLatest } from 'redux-saga/effects';
 
 import api from '../api';
 
@@ -10,9 +10,9 @@ export const types = {
   ADD_SUCCESS: 'repositories/ADD_SUCCESS',
   ADD_ERROR: 'repositories/ADD_ERROR',
 
-  FETCH_ALL_REQUESTED: 'repositories/FETCH_REQUESTED',
-  FETCH_ALL_SUCCESS: 'repositories/FETCH_SUCCESS',
-  FETCH_ALL_ERROR: 'repositories/FETCH_ERROR',
+  FETCH_REQUESTED: 'repositories/FETCH_REQUESTED',
+  FETCH_SUCCESS: 'repositories/FETCH_SUCCESS',
+  FETCH_ERROR: 'repositories/FETCH_ERROR',
 };
 
 // Action creators
@@ -21,27 +21,15 @@ export const creators = {
   addRepositorySuccess: (payload) => ({ type: types.ADD_SUCCESS, payload }),
   addRepositoryError: (error) => ({ type: types.ADD_ERROR, error }),
 
-  fetchRepositories: (payload) => ({ type: types.FETCH_ALL_REQUESTED, payload }),
-  fetchRepositoriesSuccess: (payload) => ({ type: types.FETCH_ALL_SUCCESS, payload }),
-  fetchRepositoriesError: (error) => ({ type: types.FETCH_ALL_ERROR, error }),
-};
-
-// Reducer and reducer handlers
-export const repositoriesReducer = (state = [], action) => {
-  switch (action.type) {
-    case types.FETCH_ALL_SUCCESS:
-      return [...action.payload];
-    case types.ADD_SUCCESS:
-      return [...state, action.payload];
-    default:
-      return state;
-  }
+  fetchRepositories: (payload) => ({ type: types.FETCH_REQUESTED, payload }),
+  fetchRepositoriesSuccess: (payload) => ({ type: types.FETCH_SUCCESS, payload }),
+  fetchRepositoriesError: (error) => ({ type: types.FETCH_ERROR, error }),
 };
 
 // Sagas
 export function* fetchRepositoriesSaga() {
   try {
-    const response = yield call(api.fetchAll('repositories'));
+    const response = yield call(api.fetch('repositories'));
     yield put(creators.fetchRepositoriesSuccess(response.data));
   } catch (error) {
     yield put(creators.fetchRepositoriesError(error.response.data));
@@ -64,8 +52,6 @@ export function* addRepositorySaga(action) {
 }
 
 export function* repositoriesSaga() {
-  yield takeLatest(types.FETCH_ALL_REQUESTED, fetchRepositoriesSaga);
+  yield takeLatest(types.FETCH_REQUESTED, fetchRepositoriesSaga);
   yield takeLatest(types.ADD_REQUESTED, addRepositorySaga);
-
-  yield fork(fetchRepositoriesSaga);
 }

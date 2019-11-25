@@ -37,3 +37,5 @@ export function* formSaga() {
   yield takeLatest(repositoryTypes.ADD_ERROR, formSubmitErrorHandler(formId));
   yield takeLatest(commitTypes.ADD_PAST_MONTH_COMMITS_ERROR, formSubmitErrorHandler(formId));
 }
+
+// TODO: show a loading icon for all network requests

@@ -1,0 +1,15 @@
+.paginator {
+    padding: 20px 0;
+
+    & .previous-btn-wrapper {
+        text-align: right;
+    }
+
+    & .page-number-wrapper {
+        text-align: center;
+    }
+
+    & .next-btn-wrapper {
+        text-align: left;
+    }
+}
