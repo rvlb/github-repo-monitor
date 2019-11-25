@@ -14,3 +14,6 @@ whitenoise
 psutil
 ipython
 sentry-sdk
+djangorestframework
+markdown
+django-filter
