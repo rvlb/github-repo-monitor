@@ -1,5 +1,4 @@
-import { call, fork, put, takeLatest, takeEvery } from 'redux-saga/effects';
-import { stopSubmit } from 'redux-form';
+import { call, fork, put, takeLatest } from 'redux-saga/effects';
 
 import api from '../api';
 
@@ -64,14 +63,9 @@ export function* addRepositorySaga(action) {
   }
 }
 
-export function* addRepositoryErrorSaga(action) {
-  yield put(stopSubmit('repository-add', action.error));
-}
-
 export function* repositoriesSaga() {
   yield takeLatest(types.FETCH_ALL_REQUESTED, fetchRepositoriesSaga);
   yield takeLatest(types.ADD_REQUESTED, addRepositorySaga);
-  yield takeEvery(types.ADD_ERROR, addRepositoryErrorSaga);
 
   yield fork(fetchRepositoriesSaga);
 }

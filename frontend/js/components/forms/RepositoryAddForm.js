@@ -17,7 +17,7 @@ const validate = ({ name }) => {
   return errors;
 };
 
-const RepositoryAddForm = ({ handleSubmit }) => {
+const RepositoryAddForm = ({ handleSubmit, error, submitting }) => {
   return (
     <form onSubmit={handleSubmit}>
       <Field
@@ -27,8 +27,11 @@ const RepositoryAddForm = ({ handleSubmit }) => {
         name="name"
         placeholder="{usuario}/{repositorio}"
       />
+      {error && <strong>{error}</strong>}
       <div>
-        <button type="submit">Buscar</button>
+        <button disabled={submitting} type="submit">
+          Buscar
+        </button>
       </div>
     </form>
   );
@@ -36,6 +39,12 @@ const RepositoryAddForm = ({ handleSubmit }) => {
 
 RepositoryAddForm.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
+  error: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
 };
 
-export default reduxForm({ form: 'repository-add', validate })(RepositoryAddForm);
+export default reduxForm({
+  form: 'repository-add',
+  validate,
+  submitAsSideEffect: true,
+})(RepositoryAddForm);
