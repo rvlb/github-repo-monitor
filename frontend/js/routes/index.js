@@ -1,18 +1,18 @@
-import Home from '../pages/Home';
-import CommitsList from '../pages/CommitsList';
+import HomeView from '../views/HomeView';
+import CommitsListView from '../views/CommitsListView';
 
 const routes = [
   {
     id: 0,
     path: '/',
-    component: Home,
+    component: HomeView,
     title: 'Monitorar novo repositório',
     exact: true,
   },
   {
     id: 1,
     path: '/commits',
-    component: CommitsList,
+    component: CommitsListView,
     title: 'Lista de commits',
   },
 ];

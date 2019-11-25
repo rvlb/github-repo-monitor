@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import RepositoryAddForm from '../components/forms/RepositoryAddForm';
 import { creators } from '../store/ducks/repositories';
 
-const Home = () => {
+const HomeView = () => {
   const dispatch = useDispatch();
   // Method that will handle the form submission after the validations are done
   const onSubmit = ({ name }) => {
@@ -19,4 +19,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomeView;

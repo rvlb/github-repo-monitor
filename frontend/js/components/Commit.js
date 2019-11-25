@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const Commit = ({ date, message, repository, url }) => {
@@ -7,9 +8,13 @@ const Commit = ({ date, message, repository, url }) => {
     <div className="commit">
       <div className="commit-message">{message}</div>
       <div className="commit-meta">
-        <div>
-          <span className="commit-repo">{repository.name}</span>
-          <span className="commit-date">{dateObject.toLocaleString()}</span>
+        <div className="commit-info">
+          <div className="commit-repo">
+            {repository && (
+              <Link to={`/commits?repository=${repository.id}`}>{repository.name}</Link>
+            )}
+          </div>
+          <div className="commit-date">{dateObject.toLocaleString()}</div>
         </div>
         <div className="commit-url">
           <a href={url} rel="noopener noreferrer" target="_blank">
@@ -25,8 +30,9 @@ Commit.propTypes = {
   date: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
   repository: PropTypes.shape({
+    id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-  }),
+  }).isRequired,
   url: PropTypes.string.isRequired,
 };
 

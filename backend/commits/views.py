@@ -20,7 +20,13 @@ class CommitViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         # This view should return only commits from repositories owned by the authenticated user
         user = self.request.user
-        return Commit.objects.filter(repository__owner=user)
+        queryset = Commit.objects.filter(repository__owner=user)
+        # Filter against specific query parameters
+        params = self.request.query_params
+        repository = params.get('repository', None)
+        if repository:
+            queryset = queryset.filter(repository__id=repository)
+        return queryset
 
 
 class RepositoryViewSet(viewsets.ModelViewSet):

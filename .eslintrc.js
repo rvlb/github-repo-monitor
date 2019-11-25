@@ -2,6 +2,9 @@ const path = require('path');
 
 module.exports = {
   extends: 'vinta/recommended',
+  parserOptions: {
+    ecmaVersion: 2018,
+  },
   rules: {
     'jest/prefer-inline-snapshots': ['off'],
   },
