@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 const Commit = ({ date, message, repository, url }) => {
   const dateObject = new Date(date);
@@ -18,7 +20,8 @@ const Commit = ({ date, message, repository, url }) => {
         </div>
         <div className="commit-url">
           <a href={url} rel="noopener noreferrer" target="_blank">
-            ver no GitHub
+            <span className="check-on-github">ver no GitHub</span>
+            <FontAwesomeIcon fixedWidth icon={faGithub} size="lg" />
           </a>
         </div>
       </div>
