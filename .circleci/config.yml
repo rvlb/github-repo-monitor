@@ -85,7 +85,7 @@ jobs:
             SOCIAL_AUTH_GITHUB_KEY: 'github_key'
             SOCIAL_AUTH_GITHUB_SECRET: 'github_secret'
       - run:
-          command: (cd backend; coverage run manage.py test)
+          command: (cd backend; coverage run --rcfile='../.coveragerc' manage.py test)
           environment:
             SECRET_KEY: 'secret'
             SOCIAL_AUTH_GITHUB_KEY: 'github_key'
@@ -94,6 +94,7 @@ jobs:
           command: npm run test
       - run:
           command: |
+            mv backend/.coverage .coverage 
             mkdir -p test-reports/
             coverage xml -o test-reports/results.xml
           when: always
