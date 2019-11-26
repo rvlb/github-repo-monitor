@@ -86,6 +86,10 @@ jobs:
             SOCIAL_AUTH_GITHUB_SECRET: 'github_secret'
       - run:
           command: (cd backend; coverage run manage.py test)
+          environment:
+            SECRET_KEY: 'secret'
+            SOCIAL_AUTH_GITHUB_KEY: 'github_key'
+            SOCIAL_AUTH_GITHUB_SECRET: 'github_secret'
       - run:
           command: npm run test
       - run:
