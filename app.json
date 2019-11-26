@@ -24,6 +24,12 @@
     "SECRET_KEY": {
       "description": "Django SECRET_KEY setting",
       "generator": "secret"
+    },
+    "SOCIAL_AUTH_GITHUB_KEY": {
+      "description": "GitHub API Key"
+    },
+    "SOCIAL_AUTH_GITHUB_SECRET": {
+      "description": "GitHub API Secret Key"
     }
   },
   "formation": {
