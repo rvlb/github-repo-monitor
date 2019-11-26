@@ -17,3 +17,4 @@ sentry-sdk
 djangorestframework
 markdown
 django-filter
+social-auth-app-django

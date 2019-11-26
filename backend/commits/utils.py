@@ -1,11 +1,15 @@
 import requests
 from django.conf import settings
+from social_django.models import UserSocialAuth
 
 
 def get_user_credentials(user):
     if user is None:
         return None
-    return user.social_auth.get(provider='github')
+    try:
+        return user.social_auth.get(provider='github')
+    except UserSocialAuth.DoesNotExist:
+        return None
 
 
 def github_request(endpoint, method, token, data):
