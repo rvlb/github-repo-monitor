@@ -1,5 +1,7 @@
 import datetime
 
+from django.contrib.auth import get_user_model
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -11,7 +13,7 @@ from .serializers import (
     RepositorySerializer,
     RepositoryCommitsBulkInsertSerializer,
 )
-from .utils import get_user_credentials, github_request
+from .utils import get_user_credentials, github_request, add_webhook_to_repository
 
 
 class CommitViewSet(viewsets.ModelViewSet):
@@ -122,18 +124,23 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         super().perform_create(serializer)
         # After creating a repository, we must setup a webhook to "listen to" new data
-        self._setup_webhook(serializer.data['name'])
+        self._setup_webhook(serializer.data)
 
-    def _setup_webhook(self, repo_name):
-        # TODO: migrate this to use celery
-        credentials = get_user_credentials(self.request.user)
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        # After updating a repository, we must setup a webhook to "listen to" new data
+        self._setup_webhook(serializer.data)
+
+    def _setup_webhook(self, repository_data):
+        repo_id = repository_data['id']
+        owner_id = repository_data['owner']
+
+        owner = get_user_model().objects.get(id=owner_id)
+        credentials = get_user_credentials(owner)
+        if not credentials:
+            return None
         token = credentials.extra_data['access_token']
-        webhook_data = {
-            'config': {
-                # Builds the url of the endpoint responsible for handling the webhook
-                'url': self.reverse_action(self.webhook.url_name),
-                'content_type': 'json'
-            }
-        }
-        endpoint = f'repos/{repo_name}/hooks'
-        return github_request(endpoint, 'post', token, webhook_data)
+
+        webhook_url = self.reverse_action(self.webhook.url_name)
+
+        return add_webhook_to_repository(repo_id, token, webhook_url)

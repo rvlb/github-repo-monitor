@@ -6,6 +6,7 @@ from django.utils import timezone
 class Repository(models.Model):
     name = models.CharField(max_length=255, unique=True)
     owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    webhook_id = models.PositiveIntegerField(null=True)
 
     class Meta:
         verbose_name = 'Repositório'
@@ -13,6 +14,9 @@ class Repository(models.Model):
 
     def __str__(self):
         return self.name
+
+    def has_webhook(self):
+        return self.webhook_id is not None
 
 
 class Commit(models.Model):

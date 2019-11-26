@@ -1,6 +1,11 @@
 import requests
+
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+
 from social_django.models import UserSocialAuth
+
+from .models import Repository
 
 
 def get_user_credentials(user):
@@ -41,3 +46,17 @@ def validate_repository(repo_owner, repo_name, credentials):
     if req.status_code == 200:
         return True
     return False
+
+
+def add_webhook_to_repository(repository_id, token, webhook_url):
+    # TODO: migrate this to use celery
+    repo = get_object_or_404(Repository, id=repository_id)
+    if not repo.has_webhook():
+        repo_name = repo.name
+        webhook_data = {'config': {'url': webhook_url, 'content_type': 'json'}}
+        endpoint = f'repos/{repo_name}/hooks'
+        req = github_request(endpoint, 'post', token, webhook_data)
+        if req.status_code == 201:
+            webhook = req.json()
+            repo.webhook_id = webhook['id']
+            repo.save()
