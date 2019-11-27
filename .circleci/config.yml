@@ -95,10 +95,9 @@ jobs:
       - run:
           command: |
             mv backend/.coverage .coverage 
-            mkdir -p test-reports/
-            coverage xml -o test-reports/results.xml
+            coverage html
           when: always
       - store_test_results:
-          path: test-reports
+          path: htmlcov
       - store_artifacts:
-          path: test-reports
+          path: htmlcov
