@@ -4,6 +4,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 
 import Navbar from './components/Navbar';
+import LoadingWrapper from './components/LoadingWrapper';
 import configureStore, { history } from './store';
 import routes from './routes';
 
@@ -12,22 +13,24 @@ const Root = () => {
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <Navbar>
-          {routes.map(({ path, title, id }) => (
-            <Link key={`nav-link-${id}`} to={path}>
-              {title}
-            </Link>
-          ))}
-        </Navbar>
-        <div className="container">
-          <Switch>
-            {routes.map(({ path, component: Component, id, exact = false }) => (
-              <Route key={`route-${id}`} exact={exact} path={path}>
-                <Component />
-              </Route>
+        <LoadingWrapper>
+          <Navbar>
+            {routes.map(({ path, title, id }) => (
+              <Link key={`nav-link-${id}`} to={path}>
+                {title}
+              </Link>
             ))}
-          </Switch>
-        </div>
+          </Navbar>
+          <div className="container">
+            <Switch>
+              {routes.map(({ path, component: Component, id, exact = false }) => (
+                <Route key={`route-${id}`} exact={exact} path={path}>
+                  <Component />
+                </Route>
+              ))}
+            </Switch>
+          </div>
+        </LoadingWrapper>
       </ConnectedRouter>
     </Provider>
   );

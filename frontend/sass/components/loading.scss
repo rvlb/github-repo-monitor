@@ -1,0 +1,12 @@
+.loading-wrapper {
+    & > .loading-overlay {
+        position: fixed;
+        min-height: 100vh;
+        min-width: 100vw;
+        background-color: rgba(100, 100, 100, 0.4);
+        z-index: 999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

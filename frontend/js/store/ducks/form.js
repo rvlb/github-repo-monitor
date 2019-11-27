@@ -1,23 +1,33 @@
+import { push } from 'connected-react-router';
 import { put, takeLatest } from 'redux-saga/effects';
 import { startSubmit, stopSubmit } from 'redux-form';
 
 import { types as repositoryTypes } from './repositories';
 import { types as commitTypes } from './commits';
+import { creators as loadingCreators } from './loading';
 
 export function formSubmitHandler(formId) {
   return function* formSubmitSaga() {
     yield put(startSubmit(formId));
+    yield put(loadingCreators.startLoading());
   };
 }
 
 export function formSubmitSuccessHandler(formId) {
   return function* formSubmitSuccessSaga() {
+    // In our context, we can delegate the responsibility of stopping the loading spinner
+    // when the form successfully submits to the "fetch commits" flow, just to avoid hiding
+    // the spinner and some frames later showing it again
     yield put(stopSubmit(formId));
+    yield put(push('/commits'));
   };
 }
 
 export function formSubmitErrorHandler(formId) {
   return function* formSubmitErrorSaga(action) {
+    // If the form submit fails, we don't redirect the user to the commits page, so the form
+    // becomes responsible of stopping the spinner (see formSubmitSuccessHandler for context)
+    yield put(loadingCreators.finishLoading());
     yield put(stopSubmit(formId, action.error));
   };
 }

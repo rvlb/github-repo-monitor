@@ -1,7 +1,8 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { push } from 'connected-react-router';
 
 import api from '../api';
+
+import { creators as loadingCreators } from './loading';
 
 // Action types
 export const types = {
@@ -35,12 +36,14 @@ export const commitsReducer = (state = {}, action) => {
 
 // Sagas
 export function* fetchCommitsSaga(action) {
+  yield put(loadingCreators.startLoading());
   try {
     const response = yield call(api.fetch('commits'), action.payload);
     yield put(creators.fetchCommitsSuccess(response.data));
   } catch (error) {
     yield put(creators.fetchCommitsError(error.response.data));
   }
+  yield put(loadingCreators.finishLoading());
 }
 
 export function* addRepositoryCommitsSaga(action) {
@@ -51,7 +54,6 @@ export function* addRepositoryCommitsSaga(action) {
     if (response.status === 201) {
       yield put(creators.addPastMonthCommitsSuccess(response.data));
     }
-    yield put(push('/commits'));
   } catch (error) {
     yield put(creators.addPastMonthCommitsError(error.response.data));
   }
