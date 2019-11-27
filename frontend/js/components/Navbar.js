@@ -9,6 +9,8 @@ import {
   Container,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGitAlt } from '@fortawesome/free-brands-svg-icons';
 
 const Navbar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +19,8 @@ const Navbar = ({ children }) => {
     <BootstrapNavbar className="custom-navbar" color="dark" dark expand="md">
       <Container>
         <Link className="navbar-brand" to="/">
-          Repo Monitor
+          <FontAwesomeIcon fixedWidth icon={faGitAlt} size="lg" />
+          <span>repo-monitor</span>
         </Link>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
