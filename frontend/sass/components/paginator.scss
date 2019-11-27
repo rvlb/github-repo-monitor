@@ -1,15 +1,9 @@
-.paginator {
-    padding: 20px 0;
+.pagination {
+    justify-content: center;
+    margin: 0;
+    padding-bottom: 15px;
 
-    & .previous-btn-wrapper {
-        text-align: right;
-    }
-
-    & .page-number-wrapper {
-        text-align: center;
-    }
-
-    & .next-btn-wrapper {
-        text-align: left;
+    & .current-page > .page-link {
+        color: #007bff;
     }
 }

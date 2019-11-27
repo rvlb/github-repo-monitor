@@ -26,16 +26,22 @@ const CommitsListView = () => {
   }, [paginator, search]);
   // Access the store and get the new commits' list
   const commits = useSelector((state) => state.commits);
-  return (
-    <div>
-      <CommitsList commits={commits.results} />
+  // Auxiliar renderer for the paginator, renders only if the current page has a previous/next page
+  const renderPaginator = () =>
+    (commits.previous || commits.next) && (
       <Paginator
         currentPage={paginator}
-        renderNext={Boolean(commits.next)}
-        renderPrevious={Boolean(commits.previous)}
+        disableNext={Boolean(commits.next) === false}
+        disablePrevious={Boolean(commits.previous) === false}
         setPage={setPaginator}
       />
-    </div>
+    );
+  return (
+    <>
+      {renderPaginator()}
+      <CommitsList commits={commits.results} />
+      {renderPaginator()}
+    </>
   );
 };
 

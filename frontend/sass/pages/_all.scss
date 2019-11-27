@@ -1,3 +1,11 @@
 // Pages
 
-// @import "";
+.app-container {
+    background-color: rgb(246, 248, 251);
+    min-height: 100vh;
+    font-family: 'Barlow', sans-serif;
+
+    & .component-wrapper {
+        margin-top: 15px;
+    }
+}

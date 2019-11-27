@@ -1,0 +1,39 @@
+.repository-add-form {
+    & .input-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        position: relative;
+
+        & > .label-wrapper {
+            & > .input-label {
+                font-weight: 600;
+            }
+
+            & > .hint-wrapper {
+                margin-left: 2px;
+            }
+        }
+
+        & > button {
+            margin-top: 30px;
+        }
+
+        & > .input-error {
+            color: #f00;
+            position: absolute;
+            margin-top: 5px;
+            top: 100%;
+            left: 0;
+            font-size: 10pt;
+            width: 100%;
+        }
+    }
+
+    & .form-errors {
+        margin-top: 15px;
+        color: #f00;
+        font-size: 10pt;
+    }
+}

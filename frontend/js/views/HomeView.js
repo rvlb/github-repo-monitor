@@ -13,9 +13,9 @@ const HomeView = () => {
     dispatch(action);
   };
   return (
-    <div>
+    <>
       <RepositoryAddForm onSubmit={onSubmit} />
-    </div>
+    </>
   );
 };
 

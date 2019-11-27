@@ -1,8 +1,13 @@
 import React from 'react';
+import { Input, Label } from 'reactstrap';
 import PropTypes from 'prop-types';
+
+import Hint from '../Hint';
 
 const renderField = ({
   input,
+  wrapperClass = '',
+  hint = '',
   id,
   placeholder,
   label,
@@ -10,12 +15,15 @@ const renderField = ({
   meta: { touched, error },
 }) => {
   return (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      <div>
-        <input {...input} id={id} placeholder={placeholder} type={type} />
-        {touched && error && <span>{error}</span>}
+    <div className={wrapperClass}>
+      <div className="label-wrapper">
+        <Label className="input-label" for={id}>
+          {label}
+        </Label>
+        {hint && <Hint content={hint} inputId={id} />}
       </div>
+      <Input {...input} id={id} placeholder={placeholder} type={type} />
+      {touched && error && <div className="input-error">{error}</div>}
     </div>
   );
 };
@@ -30,6 +38,8 @@ renderField.propTypes = {
     touched: PropTypes.bool,
     error: PropTypes.oneOfType([PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
   }),
+  wrapperClass: PropTypes.string,
+  hint: PropTypes.string,
 };
 
 export default renderField;
