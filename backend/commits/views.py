@@ -90,8 +90,9 @@ class RepositoryViewSet(viewsets.ModelViewSet):
                 'date': datetime.datetime.fromisoformat(created_at),
             }
             serializer = CommitSerializer(data=commit)
-            # This won't add the commits that were already present in the database
-            if serializer.is_valid():
+            serializer.is_valid()
+            # Simply don't add commits that are already present in the database
+            if serializer.validated_data:
                 instance = serializer.save()
                 new_commits.append(instance)
 
