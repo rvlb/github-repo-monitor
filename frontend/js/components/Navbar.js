@@ -6,6 +6,7 @@ import {
   Nav,
   Collapse,
   NavItem,
+  NavLink,
   Container,
 } from 'reactstrap';
 import PropTypes from 'prop-types';
@@ -30,6 +31,9 @@ const Navbar = ({ children }) => {
               // as a NavLink and work properly with Bootstrap's navbar
               return <NavItem>{React.cloneElement(el, { className: 'nav-link' })}</NavItem>;
             })}
+            <NavItem>
+              <NavLink href="/logout">Sair</NavLink>
+            </NavItem>
           </Nav>
         </Collapse>
       </Container>

@@ -1,4 +1,5 @@
 from django.conf.urls import include, url  # noqa
+from django.contrib.auth.views import logout_then_login
 
 import django_js_reverse.views
 from rest_framework.routers import DefaultRouter
@@ -21,6 +22,7 @@ urlpatterns = [
     url(r'^$', home, name='home'),
     url(r'^commits/$', home, name='commits'),
     url(r'^login/$', login, name='login'),
+    url(r'^logout/$', logout_then_login, name='logout'),
 
     url(r'^api/', include(router.urls)),
 ]
