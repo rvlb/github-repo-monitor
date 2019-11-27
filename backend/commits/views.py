@@ -61,7 +61,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
 
         credentials = get_user_credentials(user)
         token = credentials.extra_data['access_token']
-        # repo.name already contains {user_name}/{repo_name}
+        # repo.name already contains {user_name}/{project_name}
         endpoint = f'repos/{repo.name}/commits'
         return github_request(endpoint, 'get', token, params).json()
 

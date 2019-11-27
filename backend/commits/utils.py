@@ -39,8 +39,8 @@ def is_repository_owner(credentials, repository_name):
     return True
 
 
-def validate_repository(repo_owner, repo_name, credentials):
-    endpoint = f'repos/{repo_owner}/{repo_name}'
+def validate_repository(owner_name, project_name, credentials):
+    endpoint = f'repos/{owner_name}/{project_name}'
     token = credentials.extra_data['access_token']
     req = github_request(endpoint, 'get', token, {})
     if req.status_code == 200:
@@ -54,6 +54,7 @@ def add_webhook_to_repository(repository_id, token, webhook_url):
     if not repo.has_webhook():
         repo_name = repo.name
         webhook_data = {'config': {'url': webhook_url, 'content_type': 'json'}}
+        # repo.name already contains {user_name}/{project_name}
         endpoint = f'repos/{repo_name}/hooks'
         req = github_request(endpoint, 'post', token, webhook_data)
         if req.status_code == 201:

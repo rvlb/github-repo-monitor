@@ -40,8 +40,8 @@ class RepositorySerializer(serializers.ModelSerializer):
             error_message = 'Você não tem permissão para acessar este repositório.'
             raise serializers.ValidationError(error_message)
         # Validates that the repository actually exists
-        [repo_owner, repo_name] = value.split('/')
-        repository_exists = validate_repository(repo_owner, repo_name, credentials)
+        [owner_name, project_name] = value.split('/')
+        repository_exists = validate_repository(owner_name, project_name, credentials)
         if not repository_exists:
             raise serializers.ValidationError('O repositório informado não existe.')
         return value

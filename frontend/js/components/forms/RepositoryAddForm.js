@@ -26,7 +26,7 @@ const RepositoryAddForm = ({ handleSubmit, error, submitting }) => {
           <Col lg="5" md="6" sm="8" xs="12">
             <Field
               component={renderField}
-              hint="O nome do repositório deve ser escrito como [nome do usuário]/[nome do repositório]."
+              hint="O nome do repositório deve ser escrito como [nome do usuário]/[nome do projeto]."
               id="name"
               label="Nome do repositório"
               name="name"
