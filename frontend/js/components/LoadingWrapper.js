@@ -19,7 +19,7 @@ const LoadingWrapper = ({ children }) => {
 };
 
 LoadingWrapper.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element),
+  children: PropTypes.node,
 };
 
 export default LoadingWrapper;

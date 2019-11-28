@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { creators } from '../store/ducks/commits';
 import CommitsList from '../components/CommitsList';
 import Paginator from '../components/Paginator';
+import Badge from '../components/Badge';
 
 const CommitsListView = () => {
   const dispatch = useDispatch();
@@ -26,21 +29,29 @@ const CommitsListView = () => {
   }, [paginator, search]);
   // Access the store and get the new commits' list
   const commits = useSelector((state) => state.commits);
-  // Auxiliar renderer for the paginator, renders only if the current page has a previous/next page
-  const renderPaginator = () =>
-    (commits.previous || commits.next) && (
-      <Paginator
-        currentPage={paginator}
-        disableNext={Boolean(commits.next) === false}
-        disablePrevious={Boolean(commits.previous) === false}
-        setPage={setPaginator}
-      />
-    );
+  // Condition to render a badge that when clicked removes the repository filter currently applied
+  const showFilterBadge = search && search.indexOf('repository=') > 0 && commits.results;
   return (
     <>
-      {renderPaginator()}
+      {showFilterBadge && (
+        <Link to="/commits">
+          <Badge className="filter-badge">
+            <span className="filter-badge-content">
+              Exibindo commits de {commits.results[0].repository.name}
+            </span>
+            <FontAwesomeIcon icon={faTimesCircle} />
+          </Badge>
+        </Link>
+      )}
       <CommitsList commits={commits.results} />
-      {renderPaginator()}
+      {(commits.previous || commits.next) && (
+        <Paginator
+          currentPage={paginator}
+          disableNext={Boolean(commits.next) === false}
+          disablePrevious={Boolean(commits.previous) === false}
+          setPage={setPaginator}
+        />
+      )}
     </>
   );
 };

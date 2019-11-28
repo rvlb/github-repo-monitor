@@ -42,7 +42,7 @@ const Navbar = ({ children }) => {
 };
 
 Navbar.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.element),
+  children: PropTypes.node,
 };
 
 export default Navbar;
