@@ -39,7 +39,7 @@ class RepositorySerializerTestCase(BaseTestCase):
             is_valid = serializer.is_valid()
             self.assertFalse(is_valid, f'O usuário tem acesso ao repositório {repo_name}.')
 
-    @mock.patch('commits.utils.requests.get')
+    @mock.patch('common.utils.requests.get')
     def test_repository_doesnt_exist(self, mock_github):
         # Mocks the response of the GitHub request
         mock_github.return_value.status_code = 404
@@ -49,7 +49,7 @@ class RepositorySerializerTestCase(BaseTestCase):
         is_valid = serializer.is_valid()
         self.assertFalse(is_valid, 'O repositório existe.')
 
-    @mock.patch('commits.utils.requests.get')
+    @mock.patch('common.utils.requests.get')
     def test_repository_is_valid(self, mock_github):
         # Mocks the response of the GitHub request
         mock_github.return_value.status_code = 200

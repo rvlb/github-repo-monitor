@@ -7,13 +7,13 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from common.utils import github_request
 from .models import Commit, Repository
 from .serializers import (
     CommitSerializer,
     RepositorySerializer,
     RepositoryCommitsBulkInsertSerializer,
 )
-from .utils import get_user_credentials, github_request, add_webhook_to_repository
 
 
 class CommitViewSet(viewsets.ModelViewSet):
@@ -59,7 +59,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         since = datetime.datetime.utcnow() - datetime.timedelta(days=data['days'])
         params['since'] = since.isoformat()
 
-        credentials = get_user_credentials(user)
+        credentials = user.github_credentials()
         token = credentials.extra_data['access_token']
         # repo.name already contains {user_name}/{project_name}
         endpoint = f'repos/{repo.name}/commits'
@@ -136,12 +136,11 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         repo_id = repository_data['id']
         owner_id = repository_data['owner']
 
+        repo = Repository.objects.get(id=repo_id)
         owner = get_user_model().objects.get(id=owner_id)
-        credentials = get_user_credentials(owner)
-        if not credentials:
-            return None
-        token = credentials.extra_data['access_token']
 
-        webhook_url = self.reverse_action(self.webhook.url_name)
-
-        return add_webhook_to_repository(repo_id, token, webhook_url)
+        credentials = owner.github_credentials()
+        if credentials:
+            token = credentials.extra_data['access_token']
+            webhook_url = self.reverse_action(self.webhook.url_name)
+            repo.add_webhook(token, webhook_url)

@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from social_django.models import UserSocialAuth
 from common.models import IndexedTimeStampedModel
 
 from .managers import UserManager
@@ -30,3 +31,19 @@ class User(AbstractBaseUser, PermissionsMixin, IndexedTimeStampedModel):
 
     def __str__(self):
         return self.email
+
+    def github_credentials(self):
+        try:
+            return self.social_auth.get(provider='github')
+        except UserSocialAuth.DoesNotExist:
+            return None
+
+    def is_repository_owner(self, repository_name):
+        credentials = self.github_credentials()
+        if credentials is None:
+            return False
+        # Validates that the GitHub user owns the repository
+        github_user = credentials.extra_data['login']
+        if f'{github_user}/' not in repository_name:
+            return False
+        return True

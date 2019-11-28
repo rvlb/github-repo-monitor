@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from .models import Commit, Repository
-from .utils import get_user_credentials, is_repository_owner, validate_repository
 
 
 class CommitSerializer(serializers.ModelSerializer):
@@ -34,14 +33,14 @@ class RepositorySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('O nome do repositório informado é inválido.')
         # Validates that the authenticated user owns the repository
         user = self.context.get('request').user
-        credentials = get_user_credentials(user)
-        is_owner = is_repository_owner(credentials, value)
+        is_owner = user.is_repository_owner(value)
         if not is_owner:
             error_message = 'Você não tem permissão para acessar este repositório.'
             raise serializers.ValidationError(error_message)
         # Validates that the repository actually exists
         [owner_name, project_name] = value.split('/')
-        repository_exists = validate_repository(owner_name, project_name, credentials)
+        credentials = user.github_credentials()
+        repository_exists = Repository.repository_exists(owner_name, project_name, credentials)
         if not repository_exists:
             raise serializers.ValidationError('O repositório informado não existe.')
         return value
