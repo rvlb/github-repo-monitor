@@ -50,10 +50,7 @@ export function* addRepositoryCommitsSaga(action) {
   try {
     const repository = action.payload;
     const response = yield call(api.addRepositoryPastMonthCommits, { repositoryId: repository.id });
-    // It only makes sense to dispatch the action if the commits were created in this request
-    if (response.status === 201) {
-      yield put(creators.addPastMonthCommitsSuccess(response.data));
-    }
+    yield put(creators.addPastMonthCommitsSuccess(response.data));
   } catch (error) {
     yield put(creators.addPastMonthCommitsError(error.response.data));
   }
