@@ -5,6 +5,7 @@ import django_js_reverse.views
 from rest_framework.routers import DefaultRouter
 
 from common.views import home, login
+from users.views import auth_user_github_data
 from commits.routes import routes as commits_routes
 
 router = DefaultRouter()
@@ -25,4 +26,5 @@ urlpatterns = [
     url(r'^logout/$', logout_then_login, name='logout'),
 
     url(r'^api/', include(router.urls)),
+    url(r'^api/github-data/$', auth_user_github_data, name='github-data'),
 ]

@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Navbar as BootstrapNavbar,
-  NavbarToggler,
-  Nav,
-  Collapse,
-  NavItem,
-  NavLink,
-  Container,
-} from 'reactstrap';
+import { Navbar as BootstrapNavbar, Nav, Collapse, NavItem, NavLink, Container } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGitAlt } from '@fortawesome/free-brands-svg-icons';
+
+import Avatar from './Avatar';
 
 const Navbar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +17,9 @@ const Navbar = ({ children }) => {
           <FontAwesomeIcon fixedWidth icon={faGitAlt} size="lg" />
           <span>repo-monitor</span>
         </Link>
-        <NavbarToggler onClick={toggle} />
+        <button className="toggle display-on-collapsed" type="button" onClick={toggle}>
+          <Avatar />
+        </button>
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
             {React.Children.map(children, (el) => {
@@ -33,6 +29,9 @@ const Navbar = ({ children }) => {
             })}
             <NavItem>
               <NavLink href="/logout">Sair</NavLink>
+            </NavItem>
+            <NavItem className="hidden-on-collapsed">
+              <Avatar />
             </NavItem>
           </Nav>
         </Collapse>
