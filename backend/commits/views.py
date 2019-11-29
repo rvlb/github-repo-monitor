@@ -1,13 +1,16 @@
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.exceptions import ParseError
 
 from common.utils import github_request
+from .utils import webhook_commit_parser, bulk_insert_commit_parser, save_multiple_commits
 from .models import Commit, Repository
 from .serializers import (
     CommitSerializer,
@@ -42,14 +45,6 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             return RepositoryCommitsBulkInsertSerializer
         return RepositorySerializer
 
-    @action(
-        detail=False, methods=['post'],
-        permission_classes=[AllowAny],
-        url_name='github-repo-webhook'
-    )
-    def webhook(self, request):
-        return Response()
-
     def _get_past_month_commits(self, data):
         user = self.request.user
         repo = self.get_object()
@@ -79,33 +74,23 @@ class RepositoryViewSet(viewsets.ModelViewSet):
 
         past_month_commits = self._get_past_month_commits(serializer.data)
         # List of commits that were inserted in this request
-        new_commits = []
+        return save_multiple_commits(past_month_commits, repo.pk, bulk_insert_commit_parser)
 
-        for raw_commit in past_month_commits:
-            # Python 3.7 can't parse UTC's offset Z at the end of the string,
-            # so we manually replace it with the numerical offset +00:00
-            created_at = raw_commit['commit']['author']['date'].replace('Z', '+00:00')
-            commit = {
-                'code': raw_commit['sha'],
-                'url': raw_commit['html_url'],
-                'repository_id': repo.pk,
-                'message': raw_commit['commit']['message'],
-                'date': datetime.datetime.fromisoformat(created_at),
-            }
-            serializer = CommitSerializer(data=commit)
-            serializer.is_valid()
-            # Simply don't add commits that are already present in the database
-            if serializer.validated_data:
-                instance = serializer.save()
-                new_commits.append(instance)
-
-        serializer = CommitSerializer(new_commits, many=True)
-        status_code = status.HTTP_201_CREATED
-        # If no commits were added in this request, we return a
-        # more proper status code instead of 201
-        if not new_commits:
-            status_code = status.HTTP_200_OK
-        return Response(serializer.data, status=status_code)
+    @action(
+        detail=False, methods=['post'],
+        permission_classes=[AllowAny],
+        url_name='github-repo-webhook'
+    )
+    def webhook(self, request):
+        data = request.data
+        try:
+            repo = data['repository']
+            repo_name = repo['full_name']
+            commits = data['commits']
+        except KeyError:
+            raise ParseError()
+        repo = get_object_or_404(Repository, name=repo_name)
+        return save_multiple_commits(commits, repo.pk, webhook_commit_parser)
 
     def create(self, request, *args, **kwargs):
         try:
