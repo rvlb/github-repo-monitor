@@ -30,7 +30,8 @@ const CommitsListView = () => {
   // Access the store and get the new commits' list
   const commits = useSelector((state) => state.commits);
   // Condition to render a badge that when clicked removes the repository filter currently applied
-  const showFilterBadge = search && search.indexOf('repository=') > 0 && commits.results;
+  const showFilterBadge =
+    search && search.indexOf('repository=') > 0 && commits.results && commits.results.length > 0;
   return (
     <>
       {showFilterBadge && (

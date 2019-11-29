@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError, PermissionDenied
 
 from common.utils import github_request
 from .utils import webhook_commit_parser, bulk_insert_commit_parser, save_multiple_commits
@@ -82,6 +82,13 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         url_name='github-repo-webhook'
     )
     def webhook(self, request):
+        # Validates the different types of requests this endpoint can receive
+        github_event = request.META.get('HTTP_X_GITHUB_EVENT', None)
+        if (not github_event) or (github_event not in ['ping', 'push']):
+            raise PermissionDenied()
+        if github_event == 'ping':
+            return Response()
+        # After the initial validation, continue with the normal flow
         data = request.data
         try:
             repo = data['repository']
