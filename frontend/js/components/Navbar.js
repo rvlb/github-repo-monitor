@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGitAlt } from '@fortawesome/free-brands-svg-icons';
 
 import Avatar from './Avatar';
+import Toggler from './Toggler';
 
 const Navbar = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,9 +18,9 @@ const Navbar = ({ children }) => {
           <FontAwesomeIcon fixedWidth icon={faGitAlt} size="lg" />
           <span>repo-monitor</span>
         </Link>
-        <button className="toggle display-on-collapsed" type="button" onClick={toggle}>
+        <Toggler className="display-on-collapsed" isOpen={isOpen} onClick={toggle}>
           <Avatar />
-        </button>
+        </Toggler>
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
             {React.Children.map(children, (el) => {

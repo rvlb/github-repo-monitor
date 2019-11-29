@@ -3,12 +3,6 @@
         color: #fff !important;
     }
 
-    & .toggle {
-        border: 0;
-        padding: 0;
-        background-color: transparent;
-    }
-
     & .avatar-wrapper {
         margin: 0 8px;
         width: 40px;
@@ -31,13 +25,26 @@
 
     & .display-on-collapsed {
         @media screen and (min-width: 768px) {
-            display: none;
+            display: none !important;
         }
     }
 
     & .hidden-on-collapsed {
         @media screen and (max-width: 767px) {
-            display: none;
+            display: none !important;
+        }
+    }
+
+    & .toggler {
+        border: 0;
+        padding: 0;
+        background-color: transparent;
+        color: #fff;
+        display: flex;
+        align-items: center;
+
+        & > .avatar-wrapper {
+            margin-right: 0;
         }
     }
 }
