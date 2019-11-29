@@ -35,7 +35,7 @@ class RepositorySerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         is_owner = user.is_repository_owner(value)
         if not is_owner:
-            error_message = 'Você não tem permissão para acessar este repositório.'
+            error_message = 'Você não pode monitorar um repositório que não é seu.'
             raise serializers.ValidationError(error_message)
         # Validates that the repository actually exists
         [owner_name, project_name] = value.split('/')

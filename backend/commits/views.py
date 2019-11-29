@@ -48,7 +48,6 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         url_name='github-repo-webhook'
     )
     def webhook(self, request):
-        # TODO: implement
         return Response()
 
     def _get_past_month_commits(self, data):
@@ -63,7 +62,11 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         token = credentials.extra_data['access_token']
         # repo.name already contains {user_name}/{project_name}
         endpoint = f'repos/{repo.name}/commits'
-        return github_request(endpoint, 'get', token, params).json()
+        req = github_request(endpoint, 'get', token, params)
+        # If the response is anything different from OK, return an empty array
+        if req.status_code != 200:
+            return []
+        return req.json()
 
     @action(detail=True, methods=['post'], url_path='repository-commits')
     def bulk_insert_commits(self, request, pk=None):

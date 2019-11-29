@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGithubAlt } from '@fortawesome/free-brands-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 const Avatar = ({ className }) => {
   const user = useSelector((state) => state.user);
@@ -12,7 +12,7 @@ const Avatar = ({ className }) => {
       {Object.keys(user).length > 0 ? (
         <img alt={`Avatar de ${user.login}`} src={user.avatar} />
       ) : (
-        <FontAwesomeIcon className="avatar-placeholder" icon={faGithubAlt} />
+        <FontAwesomeIcon className="avatar-placeholder" icon={faGithub} />
       )}
     </div>
   );
