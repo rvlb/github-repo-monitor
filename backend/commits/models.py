@@ -32,6 +32,17 @@ class Repository(models.Model):
                 self.webhook_id = webhook['id']
                 self.save()
 
+    def delete_webhook(self, token):
+        if self.has_webhook():
+            repo_name = self.name
+            webhook_id = self.webhook_id
+            # repo.name already contains {user_name}/{project_name}
+            endpoint = f'repos/{repo_name}/hooks/{webhook_id}'
+            req = github_request(endpoint, 'delete', token, {})
+            if req.status_code == 204:
+                self.webhook_id = None
+                self.save()
+
     @staticmethod
     def repository_exists(owner_name, project_name, credentials):
         endpoint = f'repos/{owner_name}/{project_name}'

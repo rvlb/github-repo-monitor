@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from .serializers import CommitSerializer
 
+
 # Parser for the structure of commits used in the webhook
 def webhook_commit_parser(raw_commit):
     return {

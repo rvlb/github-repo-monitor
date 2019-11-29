@@ -12,4 +12,6 @@ def github_request(endpoint, method, token, data):
         return requests.get(url, params=data, headers=headers)
     if http_method == 'post':
         return requests.post(url, json=data, headers=headers)
+    if http_method == 'delete':
+        return requests.delete(url, headers=headers)
     raise Exception('Não foi possível identificar o método HTTP.')
