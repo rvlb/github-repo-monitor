@@ -25,6 +25,7 @@ class RepositorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Repository
         fields = ['name', 'owner', 'id']
+        read_only_fields = ['owner']
 
     def validate_name(self, value):
         # Checks if the repository name is well-formed

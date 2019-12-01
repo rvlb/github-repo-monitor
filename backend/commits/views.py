@@ -113,12 +113,11 @@ class RepositoryViewSet(viewsets.ModelViewSet):
             # we allow it to pass through because it will be validated
             # by the serializer in the super-class method implementation
             pass
-        # Adds the user to the data being saved as the repository owner
-        request.data['owner'] = request.user.pk
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        super().perform_create(serializer)
+        # Adds the user to the data being saved as the repository owner
+        serializer.save(owner=self.request.user)
         # After creating a repository, we must setup a webhook to "listen to" new data
         self._setup_webhook(serializer.data)
 

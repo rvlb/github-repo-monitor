@@ -18,11 +18,12 @@ class Repository(models.Model):
     def __str__(self):
         return self.name
 
+    @property
     def has_webhook(self):
         return self.webhook_id is not None
 
     def add_webhook(self, token, webhook_url):
-        if not self.has_webhook():
+        if not self.has_webhook:
             repo_name = self.name
             webhook_data = {'config': {'url': webhook_url, 'content_type': 'json'}}
             # repo.name already contains {user_name}/{project_name}
@@ -32,9 +33,11 @@ class Repository(models.Model):
                 webhook = response.json()
                 self.webhook_id = webhook['id']
                 self.save()
+                return True
+        return False
 
     def delete_webhook(self, token):
-        if self.has_webhook():
+        if self.has_webhook:
             repo_name = self.name
             webhook_id = self.webhook_id
             # repo.name already contains {user_name}/{project_name}
@@ -43,6 +46,8 @@ class Repository(models.Model):
             if response.status_code == status.HTTP_204_NO_CONTENT:
                 self.webhook_id = None
                 self.save()
+                return True
+        return False
 
     @staticmethod
     def repository_exists(owner_name, project_name, credentials):

@@ -6,5 +6,6 @@ omit = */virtualenvs/*
        */tests/*
        */tests.py
        */manage.py
+       */users/managers.py
        */venv/*
        */site-packages/*

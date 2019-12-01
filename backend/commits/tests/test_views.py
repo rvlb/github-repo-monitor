@@ -1,10 +1,12 @@
+from unittest import mock
 from django.shortcuts import reverse
+from rest_framework import status
 from common.tests.test_base import BaseTestCase
 
 from commits.models import Repository, Commit
 
 
-class ViewsBaseTestCase(BaseTestCase):
+class ViewsFetchBaseTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
 
@@ -17,7 +19,7 @@ class ViewsBaseTestCase(BaseTestCase):
         self.not_foo_repo = not_foo_repo
 
 
-class FetchRepositoriesTestCase(ViewsBaseTestCase):
+class FetchRepositoriesTestCase(ViewsFetchBaseTestCase):
     endpoint = reverse('Repository-list')
 
     def test_response_only_has_user_repositories(self):
@@ -28,7 +30,7 @@ class FetchRepositoriesTestCase(ViewsBaseTestCase):
         self.assertEqual(data['count'], 2, 'Retorna apenas os repositórios de foo-user')
 
 
-class FetchCommitsTestCase(ViewsBaseTestCase):
+class FetchCommitsTestCase(ViewsFetchBaseTestCase):
     endpoint = reverse('Commit-list')
 
     def setUp(self):
@@ -87,7 +89,7 @@ class FetchCommitsTestCase(ViewsBaseTestCase):
         client.force_authenticate(user=self.foo_user)
         response = client.get(self.endpoint)
         data = response.data
-        self.assertEqual(data['count'], 5, 'Retorna apenas os commits de foo-user')
+        self.assertEqual(data['count'], 5, 'Deveria retornar apenas os commits de foo-user')
 
     def test_response_only_has_repository_commits(self):
         client = self.client
@@ -95,8 +97,37 @@ class FetchCommitsTestCase(ViewsBaseTestCase):
 
         response = client.get(self.endpoint, {'repository': self.first_repo.pk})
         data = response.data
-        self.assertEqual(data['count'], 3, 'Retorna apenas os commits de foo-user/first-repo')
+        self.assertEqual(data['count'], 3, 'Deveria retornar apenas os commits de first_repo')
 
         response = client.get(self.endpoint, {'repository': self.second_repo.pk})
         data = response.data
-        self.assertEqual(data['count'], 2, 'Retorna apenas os commits de foo-user/second-repo')
+        self.assertEqual(data['count'], 2, 'Deveria retornar apenas os commits de second_repo')
+
+
+class CreateRepositoriesTestCase(BaseTestCase):
+    endpoint = reverse('Repository-list')
+
+    @mock.patch('common.utils.requests.get')
+    def test_create_repository(self, mock_github):
+        # Mocks the responses of the GitHub requests
+        mock_github.return_value.status_code = status.HTTP_200_OK
+
+        client = self.client
+        client.force_authenticate(user=self.foo_user)
+        response = client.post(self.endpoint, {'name': 'foo-user/test-repo'})
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            'Um repositório deveria ter sido criado'
+        )
+
+    @mock.patch('common.utils.requests.get')
+    def test_create_repository_when_it_already_exists(self, mock_github):
+        # Mocks the response of the GitHub request
+        mock_github.return_value.status_code = status.HTTP_200_OK
+        Repository.objects.create(name='foo-user/test-repo', owner=self.foo_user)
+
+        client = self.client
+        client.force_authenticate(user=self.foo_user)
+        response = client.post(self.endpoint, {'name': 'foo-user/test-repo'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
