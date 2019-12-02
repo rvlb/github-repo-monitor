@@ -1,15 +1,30 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Switch, Route } from 'react-router-dom';
+import { ConnectedRouter } from 'connected-react-router';
 
-import Application from './components/Application';
-import configureStore from './store';
+import { history } from './store';
+import LoginView from './views/LoginView';
+import MainView from './views/MainView';
+import Footer from './components/Footer';
 
-const store = configureStore({});
 const Root = () => {
   return (
-    <Provider store={store}>
-      <Application />
-    </Provider>
+    <div className="app-container">
+      <div className="flex-grow-1">
+        <ConnectedRouter history={history}>
+          <Switch>
+            <Route path="/login">
+              <LoginView />
+            </Route>
+            {/* Catch-all para todas as outras rotas */}
+            <Route path="/">
+              <MainView />
+            </Route>
+          </Switch>
+        </ConnectedRouter>
+      </div>
+      <Footer />
+    </div>
   );
 };
 
