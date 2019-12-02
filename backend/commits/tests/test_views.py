@@ -191,3 +191,74 @@ class BulkInsertCommitsTestCase(BaseTestCase):
         client.force_authenticate(user=self.foo_user)
         response = client.post(self.endpoint)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class WebhookTestCase(BaseTestCase):
+    endpoint = reverse('Repository-github-repo-webhook')
+
+    def setUp(self):
+        super().setUp()
+        test_repo = Repository.objects.create(name='foo-user/test-repo', owner=self.foo_user)
+        self.test_repo = test_repo
+
+    def test_webhook_invalid_request_no_header(self):
+        client = self.client
+        response = client.post(self.endpoint)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_webhook_invalid_request_invalid_header(self):
+        client = self.client
+        client.credentials(HTTP_X_GITHUB_EVENT='pong')
+        response = client.post(self.endpoint)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_webhook_ping(self):
+        client = self.client
+        client.credentials(HTTP_X_GITHUB_EVENT='ping')
+        response = client.post(self.endpoint)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_webhook_push_invalid_body(self):
+        client = self.client
+        client.credentials(HTTP_X_GITHUB_EVENT='push')
+        response = client.post(self.endpoint, {'repository': {}}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_webhook_push_no_repository(self):
+        client = self.client
+        client.credentials(HTTP_X_GITHUB_EVENT='push')
+        data = {
+            'repository': {
+                'full_name': 'bar-user/foo-repo'
+            },
+            'commits': [],
+        }
+        response = client.post(self.endpoint, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_webhook_push(self):
+        client = self.client
+        client.credentials(HTTP_X_GITHUB_EVENT='push')
+        data = {
+            'repository': {
+                'full_name': 'foo-user/test-repo'
+            },
+            'commits': [
+                {
+                    'id': '387393',
+                    'url': 'https://www.foo.com/387393',
+                    'timestamp': '2019-02-10 00:00:00Z',
+                    'message': 'Hello World'
+                },
+                {
+                    'id': '759358035',
+                    'url': 'https://www.foo.com/759358035',
+                    'timestamp': '2019-02-20 00:00:00Z',
+                    'message': 'Bye World'
+                }
+            ],
+        }
+        response = client.post(self.endpoint, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        commits = Commit.objects.filter(repository=self.test_repo)
+        self.assertEqual(len(commits), 2)
