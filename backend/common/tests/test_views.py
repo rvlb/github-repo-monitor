@@ -19,14 +19,10 @@ class LoginViewTestCase(BaseTestCase):
     def test_login_view_renders_not_authenticated(self):
         client = self.client
         response = client.get(self.endpoint)
-        self.assertContains(response, 'Fazer login com o GitHub')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_login_view_redirects_to_home_if_authenticated(self):
         client = self.client
         client.login(email=self.foo_user.email, password='12345')
         response = client.get(self.endpoint)
-        self.assertNotContains(
-            response,
-            'Fazer login com o GitHub',
-            status_code=status.HTTP_302_FOUND
-        )
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
