@@ -53,6 +53,21 @@ class RepositoryModelTestCase(BaseTestCase):
         self.assertFalse(repo.has_webhook, 'O repositório não deveria ter mais um webhook')
         self.assertIsNone(repo.webhook_id)
 
+    @mock.patch('common.utils.requests.delete')
+    def test_delete_webhook_when_external_server_fails(self, mock_github):
+        # Mocks the response of the GitHub request
+        mock_github.return_value.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        repo = self.test_repo
+        repo.webhook_id = 123
+        repo.save()
+        self.assertTrue(repo.has_webhook)
+
+        deleted = repo.delete_webhook('649242044984')
+        self.assertFalse(deleted)
+        self.assertTrue(repo.has_webhook, 'O repositório deveria continuar tendo um webhook')
+        self.assertEqual(repo.webhook_id, 123)
+
     def test_delete_webhook_when_it_didnt_exists(self):
         repo = self.test_repo
 

@@ -1,6 +1,5 @@
 import datetime
 
-from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, status
@@ -133,12 +132,9 @@ class RepositoryViewSet(viewsets.ModelViewSet):
 
     def _setup_webhook(self, repository_data):
         repo_id = repository_data['id']
-        owner_id = repository_data['owner']
-
         repo = Repository.objects.get(id=repo_id)
-        owner = get_user_model().objects.get(id=owner_id)
 
-        credentials = owner.github_credentials()
+        credentials = self.request.user.github_credentials()
         if credentials:
             token = credentials.extra_data['access_token']
             webhook_url = self.reverse_action(self.webhook.url_name)
