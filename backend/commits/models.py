@@ -22,31 +22,22 @@ class Repository(models.Model):
     def has_webhook(self):
         return self.webhook_id is not None
 
-    def add_webhook(self, token, webhook_url):
+    def add_webhook(self, owner_id, webhook_url):
         if not self.has_webhook:
-            repo_name = self.name
-            webhook_data = {'config': {'url': webhook_url, 'content_type': 'json'}}
-            # repo.name already contains {user_name}/{project_name}
-            endpoint = f'repos/{repo_name}/hooks'
-            response = github_request(endpoint, 'post', token, webhook_data)
-            if response.status_code == status.HTTP_201_CREATED:
-                webhook = response.json()
-                self.webhook_id = webhook['id']
-                self.save()
-                return True
-        return False
-
-    def delete_webhook(self, token):
-        if self.has_webhook:
-            repo_name = self.name
-            webhook_id = self.webhook_id
-            # repo.name already contains {user_name}/{project_name}
-            endpoint = f'repos/{repo_name}/hooks/{webhook_id}'
-            response = github_request(endpoint, 'delete', token, {})
-            if response.status_code == status.HTTP_204_NO_CONTENT:
-                self.webhook_id = None
-                self.save()
-                return True
+            user = get_user_model().objects.get(id=owner_id)
+            credentials = user.github_credentials()
+            if credentials:
+                token = credentials.extra_data['access_token']
+                repo_name = self.name
+                webhook_data = {'config': {'url': webhook_url, 'content_type': 'json'}}
+                # repo.name already contains {user_name}/{project_name}
+                endpoint = f'repos/{repo_name}/hooks'
+                response = github_request(endpoint, 'post', token, webhook_data)
+                if response.status_code == status.HTTP_201_CREATED:
+                    webhook = response.json()
+                    self.webhook_id = webhook['id']
+                    self.save()
+                    return True
         return False
 
     @staticmethod

@@ -131,3 +131,63 @@ class CreateRepositoriesTestCase(BaseTestCase):
         client.force_authenticate(user=self.foo_user)
         response = client.post(self.endpoint, {'name': 'foo-user/test-repo'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class BulkInsertCommitsTestCase(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        repo = Repository.objects.create(name='foo-user/test-repo', owner=self.foo_user)
+        self.repo = repo
+        self.endpoint = reverse('Repository-bulk-insert-commits', kwargs={'pk': repo.pk})
+
+    @mock.patch('common.utils.requests.get')
+    def test_bulk_insert_commits(self, mock_github):
+        # Mocks the response of the GitHub request
+        mock_github.return_value.status_code = status.HTTP_200_OK
+        mock_github.return_value.json.return_value = [
+            {
+                'sha': '749353593',
+                'html_url': 'https://www.foo.com/749353593',
+                'commit': {
+                    'message': 'Hello World',
+                    'author': {
+                        'date': '2019-02-10 00:00:00Z'
+                    }
+                }
+            },
+            {
+                'sha': '31389494',
+                'html_url': 'https://www.foo.com/31389494',
+                'commit': {
+                    'message': 'Bye World',
+                    'author': {
+                        'date': '2019-02-15 00:00:00Z'
+                    }
+                }
+            }
+        ]
+
+        client = self.client
+        client.force_authenticate(user=self.foo_user)
+        client.post(self.endpoint, {'days': 30})
+
+        commits = Commit.objects.filter(repository=self.repo)
+        self.assertEqual(len(commits), 2)
+
+    @mock.patch('common.utils.requests.get')
+    def test_bulk_insert_commits_github_fail(self, mock_github):
+        # Mocks the response of the GitHub request
+        mock_github.return_value.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        client = self.client
+        client.force_authenticate(user=self.foo_user)
+        client.post(self.endpoint, {'days': 30})
+
+        commits = Commit.objects.filter(repository=self.repo)
+        self.assertEqual(len(commits), 0)
+
+    def test_bulk_insert_commits_without_days(self):
+        client = self.client
+        client.force_authenticate(user=self.foo_user)
+        response = client.post(self.endpoint)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

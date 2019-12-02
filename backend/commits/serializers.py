@@ -18,7 +18,7 @@ class CommitSerializer(serializers.ModelSerializer):
 
 
 class RepositoryCommitsBulkInsertSerializer(serializers.Serializer):
-    days = serializers.IntegerField(min_value=0, default=0)
+    days = serializers.IntegerField(min_value=0, required=True)
 
 
 class RepositorySerializer(serializers.ModelSerializer):

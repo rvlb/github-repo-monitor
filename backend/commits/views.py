@@ -118,31 +118,9 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         # Adds the user to the data being saved as the repository owner
         serializer.save(owner=self.request.user)
         # After creating a repository, we must setup a webhook to "listen to" new data
-        self._setup_webhook(serializer.data)
+        self._setup_webhook(serializer.data['owner'], serializer.data['id'])
 
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
-        # After updating a repository, we must setup a webhook to "listen to" new data
-        self._setup_webhook(serializer.data)
-
-    def perform_destroy(self, instance):
-        # Before deleting a repository, we delete our webhook in the GitHub repository
-        self._delete_webhook(instance)
-        super().perform_destroy(instance)
-
-    def _setup_webhook(self, repository_data):
-        repo_id = repository_data['id']
-        repo = Repository.objects.get(id=repo_id)
-
-        credentials = self.request.user.github_credentials()
-        if credentials:
-            token = credentials.extra_data['access_token']
-            webhook_url = self.reverse_action(self.webhook.url_name)
-            repo.add_webhook(token, webhook_url)
-
-    def _delete_webhook(self, repository):
-        owner = repository.owner
-        credentials = owner.github_credentials()
-        if credentials:
-            token = credentials.extra_data['access_token']
-            repository.delete_webhook(token)
+    def _setup_webhook(self, owner_id, repository_id):
+        repo = Repository.objects.get(id=repository_id)
+        webhook_url = self.reverse_action(self.webhook.url_name)
+        repo.add_webhook(owner_id, webhook_url)
