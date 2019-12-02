@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -11,9 +12,9 @@ def auth_user_github_data(request, *args, **kwargs):
     credentials = request.user.github_credentials()
     if credentials:
         token = credentials.extra_data['access_token']
-        req = github_request('user', 'get', token, {})
-        if req.status_code == 200:
-            github_data = req.json()
+        response = github_request('user', 'get', token, {})
+        if response.status_code == status.HTTP_200_OK:
+            github_data = response.json()
             data = {'avatar': github_data['avatar_url'], 'login': github_data['login']}
             serializer = GitHubUserSerializer(data=data)
             serializer.is_valid(raise_exception=True)

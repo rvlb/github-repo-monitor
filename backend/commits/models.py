@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
+from rest_framework import status
 from common.utils import github_request
 
 
@@ -26,9 +27,9 @@ class Repository(models.Model):
             webhook_data = {'config': {'url': webhook_url, 'content_type': 'json'}}
             # repo.name already contains {user_name}/{project_name}
             endpoint = f'repos/{repo_name}/hooks'
-            req = github_request(endpoint, 'post', token, webhook_data)
-            if req.status_code == 201:
-                webhook = req.json()
+            response = github_request(endpoint, 'post', token, webhook_data)
+            if response.status_code == status.HTTP_201_CREATED:
+                webhook = response.json()
                 self.webhook_id = webhook['id']
                 self.save()
 
@@ -38,8 +39,8 @@ class Repository(models.Model):
             webhook_id = self.webhook_id
             # repo.name already contains {user_name}/{project_name}
             endpoint = f'repos/{repo_name}/hooks/{webhook_id}'
-            req = github_request(endpoint, 'delete', token, {})
-            if req.status_code == 204:
+            response = github_request(endpoint, 'delete', token, {})
+            if response.status_code == status.HTTP_204_NO_CONTENT:
                 self.webhook_id = None
                 self.save()
 
@@ -47,8 +48,8 @@ class Repository(models.Model):
     def repository_exists(owner_name, project_name, credentials):
         endpoint = f'repos/{owner_name}/{project_name}'
         token = credentials.extra_data['access_token']
-        req = github_request(endpoint, 'get', token, {})
-        if req.status_code == 200:
+        response = github_request(endpoint, 'get', token, {})
+        if response.status_code == status.HTTP_200_OK:
             return True
         return False
 

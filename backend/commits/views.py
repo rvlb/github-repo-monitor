@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -57,11 +57,11 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         token = credentials.extra_data['access_token']
         # repo.name already contains {user_name}/{project_name}
         endpoint = f'repos/{repo.name}/commits'
-        req = github_request(endpoint, 'get', token, params)
+        response = github_request(endpoint, 'get', token, params)
         # If the response is anything different from OK, return an empty array
-        if req.status_code != 200:
+        if response.status_code != status.HTTP_200_OK:
             return []
-        return req.json()
+        return response.json()
 
     @action(detail=True, methods=['post'], url_path='repository-commits')
     def bulk_insert_commits(self, request, pk=None):

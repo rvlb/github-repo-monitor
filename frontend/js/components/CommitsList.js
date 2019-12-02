@@ -15,7 +15,7 @@ const CommitsList = ({ commits = [] }) => {
       })}
       {commits.length === 0 && (
         <div className="no-commits-message">
-          Ops, parece que este repositório ainda não tem commits capturados...
+          Sem commits para mostrar aqui... que tal monitorar um novo repositório?
         </div>
       )}
     </div>
