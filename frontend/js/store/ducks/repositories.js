@@ -9,6 +9,7 @@ export const types = {
   ADD_REQUESTED: 'repositories/ADD_REQUESTED',
   ADD_SUCCESS: 'repositories/ADD_SUCCESS',
   ADD_ERROR: 'repositories/ADD_ERROR',
+  ADD_ALREADY_EXISTS: 'repositories/ADD_ALREADY_EXISTS',
 };
 
 // Action creators
@@ -16,6 +17,7 @@ export const creators = {
   addRepository: (payload) => ({ type: types.ADD_REQUESTED, payload }),
   addRepositorySuccess: (payload) => ({ type: types.ADD_SUCCESS, payload }),
   addRepositoryError: (error) => ({ type: types.ADD_ERROR, error }),
+  addRepositoryAlreadyExists: (repository) => ({ type: types.ADD_ALREADY_EXISTS, repository }),
 };
 
 // Sagas
@@ -26,9 +28,11 @@ export function* addRepositorySaga(action) {
     const repository = response.data;
     if (response.status === 201) {
       yield put(creators.addRepositorySuccess(repository));
+      // After retrieving the data of the repository, dispatch the action to get the commits from that repository
+      yield put(commitActions.addPastMonthCommits(repository));
+    } else {
+      yield put(creators.addRepositoryAlreadyExists(repository));
     }
-    // After retrieving the data of the repository, dispatch the action to get the commits from that repository
-    yield put(commitActions.addPastMonthCommits(repository));
   } catch (error) {
     yield put(creators.addRepositoryError(error.response.data));
   }

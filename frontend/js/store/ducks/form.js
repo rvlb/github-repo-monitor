@@ -14,12 +14,16 @@ export function formSubmitHandler(formId) {
 }
 
 export function formSubmitSuccessHandler(formId) {
-  return function* formSubmitSuccessSaga() {
+  return function* formSubmitSuccessSaga(action) {
     // In our context, we can delegate the responsibility of stopping the loading spinner
     // when the form successfully submits to the "fetch commits" flow, just to avoid hiding
     // the spinner and some frames later showing it again
     yield put(stopSubmit(formId));
-    yield put(push('/commits'));
+    let redirectUrl = '/commits';
+    // If we passed the repository as a value in the action object, redirect the
+    // user to the commits list and show the data filtered by the repository id
+    if (action.repository) redirectUrl = `${redirectUrl}?repository=${action.repository.id}`;
+    yield put(push(redirectUrl));
   };
 }
 
@@ -43,9 +47,8 @@ export function formSubmitErrorHandler(formId) {
 export function* formSaga() {
   const formId = 'repository-add';
   yield takeLatest(repositoryTypes.ADD_REQUESTED, formSubmitHandler(formId));
+  yield takeLatest(repositoryTypes.ADD_ALREADY_EXISTS, formSubmitSuccessHandler(formId));
   yield takeLatest(commitTypes.ADD_PAST_MONTH_COMMITS_SUCCESS, formSubmitSuccessHandler(formId));
   yield takeLatest(repositoryTypes.ADD_ERROR, formSubmitErrorHandler(formId));
   yield takeLatest(commitTypes.ADD_PAST_MONTH_COMMITS_ERROR, formSubmitErrorHandler(formId));
 }
-
-// TODO: show a loading icon for all network requests
