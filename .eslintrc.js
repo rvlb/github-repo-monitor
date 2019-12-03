@@ -7,6 +7,7 @@ module.exports = {
   },
   rules: {
     'jest/prefer-inline-snapshots': ['off'],
+    'import/no-extraneous-dependencies': ['error', {'devDependencies': true}],
   },
   env: {
     es6: true,

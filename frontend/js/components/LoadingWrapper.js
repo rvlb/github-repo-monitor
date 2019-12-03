@@ -9,7 +9,7 @@ const LoadingWrapper = ({ children }) => {
   return (
     <div className="loading-wrapper">
       {isLoading && (
-        <div className="loading-overlay">
+        <div className="loading-overlay" data-testid="loading-overlay">
           <Spinner className="loading-spinner" />
         </div>
       )}
