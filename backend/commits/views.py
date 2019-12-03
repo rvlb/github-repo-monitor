@@ -16,6 +16,7 @@ from .serializers import (
     RepositorySerializer,
     RepositoryCommitsBulkInsertSerializer,
 )
+from .tasks import setup_webhook
 
 
 class CommitViewSet(viewsets.ModelViewSet):
@@ -122,5 +123,4 @@ class RepositoryViewSet(viewsets.ModelViewSet):
 
     def _setup_webhook(self, repository_id):
         webhook_url = self.reverse_action(self.webhook.url_name)
-        repo = Repository.objects.get(id=repository_id)
-        repo.add_webhook(webhook_url)
+        setup_webhook.delay(repository_id, webhook_url)
