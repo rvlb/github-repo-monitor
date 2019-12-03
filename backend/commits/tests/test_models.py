@@ -24,14 +24,14 @@ class RepositoryModelTestCase(BaseTestCase):
         }
 
         repo = self.test_repo
-        added = repo.add_webhook(self.foo_user.pk, 'https://webhook.com')
+        added = repo.add_webhook('https://webhook.com')
         self.assertTrue(added)
         self.assertTrue(repo.has_webhook, 'Um webhook deveria ter sido criado para o repositório.')
         self.assertEqual(repo.webhook_id, 123)
 
     def test_add_webhook_without_credentials(self):
-        repo = self.test_repo
-        added = repo.add_webhook(self.bar_user.pk, 'https://webhook.com')
+        repo = Repository.objects.create(name='bar-user/test-repo', owner=self.bar_user)
+        added = repo.add_webhook('https://webhook.com')
         self.assertFalse(added)
 
     def test_add_webhook_when_it_already_exists(self):
@@ -39,7 +39,7 @@ class RepositoryModelTestCase(BaseTestCase):
         repo.webhook_id = 123
         repo.save()
 
-        added = repo.add_webhook(self.foo_user.pk, 'https://webhook.com')
+        added = repo.add_webhook('https://webhook.com')
         self.assertFalse(added)
         self.assertTrue(repo.has_webhook, 'O repositório deveria continuar com um webhook.')
 

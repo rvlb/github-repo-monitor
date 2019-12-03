@@ -118,9 +118,9 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         # Adds the user to the data being saved as the repository owner
         serializer.save(owner=self.request.user)
         # After creating a repository, we must setup a webhook to "listen to" new data
-        self._setup_webhook(serializer.data['owner'], serializer.data['id'])
+        self._setup_webhook(serializer.data['id'])
 
-    def _setup_webhook(self, owner_id, repository_id):
-        repo = Repository.objects.get(id=repository_id)
+    def _setup_webhook(self, repository_id):
         webhook_url = self.reverse_action(self.webhook.url_name)
-        repo.add_webhook(owner_id, webhook_url)
+        repo = Repository.objects.get(id=repository_id)
+        repo.add_webhook(webhook_url)

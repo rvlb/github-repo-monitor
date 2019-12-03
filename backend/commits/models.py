@@ -22,10 +22,9 @@ class Repository(models.Model):
     def has_webhook(self):
         return self.webhook_id is not None
 
-    def add_webhook(self, owner_id, webhook_url):
+    def add_webhook(self, webhook_url):
         if not self.has_webhook:
-            user = get_user_model().objects.get(id=owner_id)
-            credentials = user.github_credentials()
+            credentials = self.owner.github_credentials()
             if credentials:
                 token = credentials.extra_data['access_token']
                 repo_name = self.name
