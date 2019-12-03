@@ -25,6 +25,8 @@ AUTH_PASSWORD_VALIDATORS = []  # allow easy passwords only on local
 
 # Celery
 CELERY_TASK_ALWAYS_EAGER = True
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = config('CELERY_BROKER_URL')
 
 # Email
 INSTALLED_APPS += ('naomi',)

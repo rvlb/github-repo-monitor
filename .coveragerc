@@ -7,5 +7,6 @@ omit = */virtualenvs/*
        */tests.py
        */manage.py
        */users/managers.py
+       */github_repo_monitor/celery.py
        */venv/*
        */site-packages/*

@@ -112,15 +112,14 @@ class CreateRepositoriesTestCase(BaseTestCase):
         # Mocks the responses of the GitHub requests
         mock_github.return_value.status_code = status.HTTP_200_OK
 
-        with mock.patch('commits.tasks.setup_webhook.delay'):
-            client = self.client
-            client.force_authenticate(user=self.foo_user)
-            response = client.post(self.endpoint, {'name': 'foo-user/test-repo'})
-            self.assertEqual(
-                response.status_code,
-                status.HTTP_201_CREATED,
-                'Um repositório deveria ter sido criado'
-            )
+        client = self.client
+        client.force_authenticate(user=self.foo_user)
+        response = client.post(self.endpoint, {'name': 'foo-user/test-repo'})
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED,
+            'Um repositório deveria ter sido criado'
+        )
 
     @mock.patch('common.utils.requests.get')
     def test_create_repository_when_it_already_exists(self, mock_github):
