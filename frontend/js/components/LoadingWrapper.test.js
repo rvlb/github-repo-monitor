@@ -6,15 +6,15 @@ import { renderWithRedux } from '../utils/testing';
 import LoadingWrapper from './LoadingWrapper';
 
 test('renders the loading overlay when loading=true in the store', () => {
-  const { queryByTestId } = renderWithRedux(<LoadingWrapper />, {
+  renderWithRedux(<LoadingWrapper />, {
     state: { loading: true },
   });
-  expect(queryByTestId('loading-overlay')).toBeInTheDocument();
+  expect(document.querySelector('.loading-overlay')).toBeInTheDocument();
 });
 
 test('do not render the loading overlay when loading=false in the store', () => {
-  const { queryByTestId } = renderWithRedux(<LoadingWrapper />, {
+  renderWithRedux(<LoadingWrapper />, {
     state: { loading: false },
   });
-  expect(queryByTestId('loading-overlay')).toBeNull();
+  expect(document.querySelector('.loading-overlay')).not.toBeInTheDocument();
 });
