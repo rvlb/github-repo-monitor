@@ -15,7 +15,7 @@ export const types = {
 // Action creators
 export const creators = {
   addRepository: (payload) => ({ type: types.ADD_REQUESTED, payload }),
-  addRepositorySuccess: (payload) => ({ type: types.ADD_SUCCESS, payload }),
+  addRepositorySuccess: (repository) => ({ type: types.ADD_SUCCESS, repository }),
   addRepositoryError: (error) => ({ type: types.ADD_ERROR, error }),
   addRepositoryAlreadyExists: (repository) => ({ type: types.ADD_ALREADY_EXISTS, repository }),
 };

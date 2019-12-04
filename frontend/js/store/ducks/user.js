@@ -23,9 +23,9 @@ export const userReducer = (state = {}, action) => {
 };
 
 // Sagas
-export function* fetchUserSaga(action) {
+export function* fetchUserSaga() {
   try {
-    const response = yield call(api.fetch('github-data'), action.payload);
+    const response = yield call(api.fetch('github-data'));
     yield put(creators.fetchUserSuccess(response.data));
   } catch (error) {
     yield put(creators.fetchUserError(error.response.data));
