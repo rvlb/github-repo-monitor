@@ -17,7 +17,10 @@ export const creators = {
   addRepository: (payload) => ({ type: types.ADD_REQUESTED, payload }),
   addRepositorySuccess: (repository) => ({ type: types.ADD_SUCCESS, repository }),
   addRepositoryError: (error) => ({ type: types.ADD_ERROR, error }),
-  addRepositoryAlreadyExists: (repository) => ({ type: types.ADD_ALREADY_EXISTS, repository }),
+  addRepositoryAlreadyExists: (redirectUrl) => ({
+    type: types.ADD_ALREADY_EXISTS,
+    redirectUrl,
+  }),
 };
 
 // Sagas
@@ -31,7 +34,9 @@ export function* addRepositorySaga(action) {
       // After retrieving the data of the repository, dispatch the action to get the commits from that repository
       yield put(commitActions.addPastMonthCommits(repository));
     } else {
-      yield put(creators.addRepositoryAlreadyExists(repository));
+      // We will redirect the user to the commits' list page, filtered by the repository id
+      const redirectUrl = `/commits?repository=${repository.id}`;
+      yield put(creators.addRepositoryAlreadyExists(redirectUrl));
     }
   } catch (error) {
     yield put(creators.addRepositoryError(error.response.data));

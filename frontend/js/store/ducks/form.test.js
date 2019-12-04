@@ -19,26 +19,22 @@ describe('form submit requested', () => {
   });
 });
 
-describe('form submit success without repository', () => {
+describe('form submit success without redirect', () => {
   const gen = formSubmitSuccessHandler(formId)({});
   test('should dispatch a stop submit action', () => {
     const action = stopSubmit(formId);
     expect(gen.next().value).toStrictEqual(put(action));
   });
-  test('should dispatch an action to redirect the user', () => {
-    const action = push('/commits');
-    expect(gen.next().value).toStrictEqual(put(action));
-  });
 });
 
-describe('form submit success with a repository', () => {
-  const gen = formSubmitSuccessHandler(formId)({ repository: { id: 1 } });
+describe('form submit success and then redirect', () => {
+  const gen = formSubmitSuccessHandler(formId)({ redirectUrl: '/foo' });
   test('should dispatch a stop submit action', () => {
     const action = stopSubmit(formId);
     expect(gen.next().value).toStrictEqual(put(action));
   });
   test('should dispatch an action to redirect the user', () => {
-    const action = push('/commits?repository=1');
+    const action = push('/foo');
     expect(gen.next().value).toStrictEqual(put(action));
   });
 });

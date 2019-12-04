@@ -14,16 +14,13 @@ export function formSubmitHandler(formId) {
 }
 
 export function formSubmitSuccessHandler(formId) {
-  return function* formSubmitSuccessSaga(action) {
+  return function* formSubmitSuccessSaga({ redirectUrl }) {
     // In our context, we can delegate the responsibility of stopping the loading spinner
     // when the form successfully submits to the "fetch commits" flow, just to avoid hiding
     // the spinner and some frames later showing it again
     yield put(stopSubmit(formId));
-    let redirectUrl = '/commits';
-    // If we passed the repository as a value in the action object, redirect the
-    // user to the commits list and show the data filtered by the repository id
-    if (action.repository) redirectUrl = `${redirectUrl}?repository=${action.repository.id}`;
-    yield put(push(redirectUrl));
+    // If we passed a redirectUrl as a value in the action object, then redirect the user
+    if (redirectUrl) yield put(push(redirectUrl));
   };
 }
 

@@ -18,8 +18,8 @@ export const types = {
 // Action creators
 export const creators = {
   addPastMonthCommits: (payload) => ({ type: types.ADD_PAST_MONTH_COMMITS_REQUESTED, payload }),
-  addPastMonthCommitsSuccess: (payload) => {
-    return { type: types.ADD_PAST_MONTH_COMMITS_SUCCESS, payload };
+  addPastMonthCommitsSuccess: (payload, redirectUrl) => {
+    return { type: types.ADD_PAST_MONTH_COMMITS_SUCCESS, payload, redirectUrl };
   },
   addPastMonthCommitsError: (error) => ({ type: types.ADD_PAST_MONTH_COMMITS_ERROR, error }),
 
@@ -50,7 +50,7 @@ export function* addRepositoryCommitsSaga(action) {
   try {
     const repository = action.payload;
     const response = yield call(api.addRepositoryPastMonthCommits, { repositoryId: repository.id });
-    yield put(creators.addPastMonthCommitsSuccess(response.data));
+    yield put(creators.addPastMonthCommitsSuccess(response.data, '/commits'));
   } catch (error) {
     yield put(creators.addPastMonthCommitsError(error.response.data));
   }

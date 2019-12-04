@@ -30,9 +30,9 @@ test('addRepositoryError should create an add error action', () => {
 });
 
 test('addRepositoryAlreadyExists should create an add already exists action', () => {
-  const repository = { name: repoName, owner: 1, id: 1 };
-  const action = creators.addRepositoryAlreadyExists(repository);
-  const expectedAction = { type: types.ADD_ALREADY_EXISTS, repository };
+  const redirectUrl = '/commits?repository=1';
+  const action = creators.addRepositoryAlreadyExists(redirectUrl);
+  const expectedAction = { type: types.ADD_ALREADY_EXISTS, redirectUrl };
   expect(action).toStrictEqual(expectedAction);
 });
 
@@ -74,7 +74,7 @@ describe('addRepositorySaga alternative flow', () => {
 
   const mockResponse = { ...addRepositoryServerMockResponse, status: 200 };
   test('should dispatch a repository already exists action', () => {
-    const action = creators.addRepositoryAlreadyExists(mockResponse.data);
+    const action = creators.addRepositoryAlreadyExists('/commits?repository=1');
     expect(gen.next(mockResponse).value).toStrictEqual(put(action));
   });
 });
