@@ -22,24 +22,32 @@ test('fetchUserError should create a fetch error action', () => {
   expect(creators.fetchUserError(error)).toStrictEqual(expectedAction);
 });
 
-test('fetchUserSaga should make an API call and dispatch a fetch success action', () => {
+const fetchGitHubDataApiCallTestCase = (generator) => {
+  test('should make an API call', () => {
+    expect(JSON.stringify(generator.next().value)).toStrictEqual(
+      JSON.stringify(call(api.fetch('github-data')))
+    );
+  });
+};
+
+describe('fetchUserSaga', () => {
   const gen = fetchUserSaga();
-  expect(JSON.stringify(gen.next().value)).toStrictEqual(
-    JSON.stringify(call(api.fetch('github-data')))
-  );
+  fetchGitHubDataApiCallTestCase(gen);
   const mockResponse = { data: { login: 'test-user' } };
-  expect(gen.next(mockResponse).value).toStrictEqual(
-    put(creators.fetchUserSuccess(mockResponse.data))
-  );
+  test('should dispatch a fetch success action', () => {
+    expect(gen.next(mockResponse).value).toStrictEqual(
+      put(creators.fetchUserSuccess(mockResponse.data))
+    );
+  });
 });
 
-test('fetchUserSaga should make an API call and dispatch a fetch error action if something wrong happens', () => {
+describe('fetchUserSaga error flow', () => {
   const gen = fetchUserSaga();
-  expect(JSON.stringify(gen.next().value)).toStrictEqual(
-    JSON.stringify(call(api.fetch('github-data')))
-  );
+  fetchGitHubDataApiCallTestCase(gen);
   const mockError = { response: { data: 'eita!' } };
-  expect(gen.throw(mockError).value).toStrictEqual(
-    put(creators.fetchUserError(mockError.response.data))
-  );
+  test('should dispatch a fetch error action', () => {
+    expect(gen.throw(mockError).value).toStrictEqual(
+      put(creators.fetchUserError(mockError.response.data))
+    );
+  });
 });
