@@ -7,19 +7,22 @@ import '@testing-library/jest-dom/extend-expect';
 
 test('fetchUser should create a fetch requested action', () => {
   const expectedAction = { type: types.FETCH_REQUESTED };
-  expect(creators.fetchUser()).toStrictEqual(expectedAction);
+  const action = creators.fetchUser();
+  expect(action).toStrictEqual(expectedAction);
 });
 
 test('fetchUserSuccess should create a fetch success action', () => {
   const userData = { login: 'test-user' };
   const expectedAction = { type: types.FETCH_SUCCESS, payload: userData };
-  expect(creators.fetchUserSuccess(userData)).toStrictEqual(expectedAction);
+  const action = creators.fetchUserSuccess(userData);
+  expect(action).toStrictEqual(expectedAction);
 });
 
 test('fetchUserError should create a fetch error action', () => {
   const error = { message: 'oops...' };
   const expectedAction = { type: types.FETCH_ERROR, error };
-  expect(creators.fetchUserError(error)).toStrictEqual(expectedAction);
+  const action = creators.fetchUserError(error);
+  expect(action).toStrictEqual(expectedAction);
 });
 
 const fetchGitHubDataApiCallTestCase = (generator) => {
@@ -35,9 +38,8 @@ describe('fetchUserSaga', () => {
   fetchGitHubDataApiCallTestCase(gen);
   const mockResponse = { data: { login: 'test-user' } };
   test('should dispatch a fetch success action', () => {
-    expect(gen.next(mockResponse).value).toStrictEqual(
-      put(creators.fetchUserSuccess(mockResponse.data))
-    );
+    const action = creators.fetchUserSuccess(mockResponse.data);
+    expect(gen.next(mockResponse).value).toStrictEqual(put(action));
   });
 });
 
@@ -46,8 +48,7 @@ describe('fetchUserSaga error flow', () => {
   fetchGitHubDataApiCallTestCase(gen);
   const mockError = { response: { data: 'eita!' } };
   test('should dispatch a fetch error action', () => {
-    expect(gen.throw(mockError).value).toStrictEqual(
-      put(creators.fetchUserError(mockError.response.data))
-    );
+    const action = creators.fetchUserError(mockError.response.data);
+    expect(gen.throw(mockError).value).toStrictEqual(put(action));
   });
 });
