@@ -22,7 +22,13 @@ const CommitsListView = () => {
   useEffect(() => {
     // Build an object holding the query-string/search params data,
     // so we can filter the commits by repositories in the server
-    const qs = Object.fromEntries(new URLSearchParams(search));
+    const params = new URLSearchParams(search);
+    const qs = [...params].reduce((acc, param) => {
+      const key = param[0];
+      const value = param[1];
+      acc[key] = value;
+      return acc;
+    }, {});
     // Dispatch an action to fetch the next 10 commits to display in the list.
     const action = creators.fetchCommits({ offset: paginator * 10, ...qs });
     dispatch(action);
