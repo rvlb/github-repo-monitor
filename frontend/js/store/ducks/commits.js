@@ -18,7 +18,7 @@ export const types = {
 // Action creators
 export const creators = {
   addPastMonthCommits: (payload) => ({ type: types.ADD_PAST_MONTH_COMMITS_REQUESTED, payload }),
-  addPastMonthCommitsSuccess: (payload, redirectUrl) => {
+  addPastMonthCommitsSuccess: (payload, redirectUrl = '') => {
     return { type: types.ADD_PAST_MONTH_COMMITS_SUCCESS, payload, redirectUrl };
   },
   addPastMonthCommitsError: (error) => ({ type: types.ADD_PAST_MONTH_COMMITS_ERROR, error }),
